@@ -13,22 +13,14 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          token: ${{ secrets.GH_TOKEN }}  # Use personal token for checkout
 
       - name: Configure Git
         run: |
-          git config --global user.name "GitHub Actions"
+          git config --global user.name "GitHub Actions Bot"
           git config --global user.email "actions@github.com"
 
       - name: Push to staging repo
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          # Check if token exists
-          if [ -z "$GH_TOKEN" ]; then
-            echo "Error: GH_TOKEN is not set"
-            exit 1
-          fi
-          
-          # Add remote and push
-          git remote add staging https://x-access-token:${GH_TOKEN}@github.com/ChSchroeck/pendo-eu-crm1-dev.git
+          git remote add staging https://${{ secrets.GH_TOKEN }}@github.com/ChSchroeck/pendo-eu-crm1-dev.git
           git push staging gh-pages:main --force
