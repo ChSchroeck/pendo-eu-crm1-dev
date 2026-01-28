@@ -1,0 +1,22 @@
+name: Sync to Staging
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Push to staging repo
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          git remote add staging https://x-access-token:${GH_TOKEN}@github.com/chschroeck/pendo-eu-crm1-dev.git
+          git push staging main:main --force
