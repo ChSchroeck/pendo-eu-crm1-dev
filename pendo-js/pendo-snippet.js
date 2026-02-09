@@ -28,7 +28,8 @@
                     id: "account_003", // Highly recommended, required if using Pendo Feedback or OEM Adopt
                     name: "Pseudo GmbH & Co KG",
                     is_paying: false,
-                    segment: "ENT"
+                    segment: "ENT",
+                    hastam: true
                     // monthly_value:// Recommended if using Pendo Feedback
                     // planLevel:    // Optional
                     // planPrice:    // Optional
