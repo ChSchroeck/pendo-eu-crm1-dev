@@ -29,8 +29,7 @@
                     name: "Pseudo GmbH & Co KG",
                     is_paying: false,
                     segment: "ENT",
-                    hastam: true,
-                    industry: "Manual Synced"
+                    salesforce__industry: "Through SDK"
                     // monthly_value:// Recommended if using Pendo Feedback
                     // planLevel:    // Optional
                     // planPrice:    // Optional
