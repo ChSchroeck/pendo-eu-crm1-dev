@@ -1,5 +1,4 @@
 name: Sync to Staging
-
 on:
   push:
     branches:
@@ -13,12 +12,17 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          token: ${{ secrets.GH_TOKEN }}  # Use personal token for checkout
+          token: ${{ secrets.GH_TOKEN }}
 
       - name: Configure Git
         run: |
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "actions@github.com"
+
+      - name: Remove files not needed in staging
+        run: |
+          git rm CNAME
+          git commit -m "Remove CNAME for staging sync"
 
       - name: Push to staging repo
         run: |
