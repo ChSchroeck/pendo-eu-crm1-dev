@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Slide-Out Panel Layout</title>
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Arial, sans-serif;
+    }
+
+    body {
+        display: flex;
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    /* Left Navigation */
+    .sidebar {
+        width: 220px;
+        background: #1f2937;
+        color: white;
+        padding: 20px;
+    }
+
+    .sidebar h2 {
+        margin-bottom: 20px;
+    }
+
+    .nav-item {
+        padding: 10px;
+        cursor: pointer;
+        border-radius: 6px;
+    }
+
+    .nav-item:hover {
+        background: #374151;
+    }
+
+    /* Main Content */
+    .main-content {
+        flex: 1;
+        background: #f3f4f6;
+        padding: 40px;
+        transition: margin-right 0.3s ease;
+    }
+
+    /* Right Slide Panel */
+    .right-panel {
+        position: fixed;
+        right: -350px;
+        top: 0;
+        width: 350px;
+        height: 100%;
+        background: white;
+        box-shadow: -4px 0 10px rgba(0,0,0,0.1);
+        padding: 20px;
+        transition: right 0.3s ease;
+    }
+
+    .right-panel.active {
+        right: 0;
+    }
+
+    .close-btn {
+        cursor: pointer;
+        font-weight: bold;
+        margin-bottom: 20px;
+        display: inline-block;
+    }
+
+</style>
+</head>
+<body>
+
+    <!-- Left Navigation -->
+    <div class="sidebar">
+        <h2>Navigation</h2>
+        <div class="nav-item" onclick="togglePanel()">Latest update</div>
+    </div>
+
+    <!-- Main Area -->
+    <div class="main-content">
+        <h1>Main Content Area</h1>
+        <p>This area takes the full remaining screen space.</p>
+    </div>
+
+    <!-- Right Slide-Out Panel -->
+    <div class="right-panel" id="rightPanel">
+        <div class="close-btn" onclick="togglePanel()">✕ Close</div>
+        <h2>Latest Update</h2>
+        <p>This is the slide-out panel content.</p>
+    </div>
+
+<script>
+    function togglePanel() {
+        document.getElementById("rightPanel").classList.toggle("active");
+    }
+</script>
+
+</body>
+</html>
