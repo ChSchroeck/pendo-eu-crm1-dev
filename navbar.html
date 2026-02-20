@@ -74,6 +74,77 @@
     }
 
 </style>
+<script>
+
+        (function (publicAppId) {
+            (function (p, e, n, d, o) {
+                var v, w, x, y, z; o = p[d] = p[d] || {}; o._q = o._q || [];
+                v = ['initialize', 'identify', 'updateOptions', 'pageLoad', 'track', 'trackAgent']; for (w = 0, x = v.length; w < x; ++w)(function (m) {
+                    o[m] = o[m] || function () { o._q[m === v[0] ? 'unshift' : 'push']([m].concat([].slice.call(arguments, 0))); };
+                })(v[w]);
+                y = e.createElement(n); y.async = !0; y.src = 'https://cdn.eu.pendo.io/agent/static/' + publicAppId + '/pendo.js';
+                z = e.getElementsByTagName(n)[0]; z.parentNode.insertBefore(y, z);
+            })(window, document, 'script', 'pendo');
+
+            // This function creates visitors and accounts in Pendo
+            // You will need to replace <visitor-id-goes-here> and <account-id-goes-here> with values you use in your app
+            // Please use Strings, Numbers, or Bools for value types.
+// Visitor 1 / Account 1
+            pendo.initialize({
+                visitor: {
+                    id: "user_003", // Required if user is logged in
+                    email: "paul_pendo@schroeck-online.de", // Recommended if using Pendo Feedback, or NPS Email
+                    full_name: "Paul Pendo", // Recommended if using Pendo Feedback
+                    role: "User",// Optional
+                    location: "UK" //Metadata 1
+
+                    // You can add any additional visitor level key-values here,
+                    // as long as it's not one of the above reserved names.
+                },
+
+                account: {
+                    id: "account_003", // Highly recommended, required if using Pendo Feedback or OEM Adopt
+                    name: "Pseudo GmbH & Co KG",
+                    is_paying: false,
+                    segment: "ENT",
+                    // monthly_value:// Recommended if using Pendo Feedback
+                    // planLevel:    // Optional
+                    // planPrice:    // Optional
+                    // creationDate: // Optional
+
+                    // You can add any additional account level key-values here,
+                    // as long as it's not one of the above reserved names.
+                }
+            }); 
+ 
+            /* pendo.initialize({
+                visitor: {
+                    id: "user_003", // Required if user is logged in
+                    email: "paul_pendo@schroeck-online.de", // Recommended if using Pendo Feedback, or NPS Email
+                    full_name: "Paul Pendo", // Recommended if using Pendo Feedback
+                    role: "User",// Optional
+                    location: "UK" //Metadata 1
+
+                    // You can add any additional visitor level key-values here,
+                    // as long as it's not one of the above reserved names.
+                },
+
+                account: {
+                    id: "account_003", // Highly recommended, required if using Pendo Feedback or OEM Adopt
+                    name: "Pseudo GmbH & Co KG",
+                    is_paying: false,
+                    segment: "ENT",
+                    // monthly_value:// Recommended if using Pendo Feedback
+                    // planLevel:    // Optional
+                    // planPrice:    // Optional
+                    // creationDate: // Optional
+
+                    // You can add any additional account level key-values here,
+                    // as long as it's not one of the above reserved names.
+                }
+            }); */
+        })('7d66e821-ff08-4795-a340-1a3ebbd3df49');
+</script>
 </head>
 <body>
 
