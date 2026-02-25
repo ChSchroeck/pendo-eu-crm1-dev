@@ -1,80 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Slide-Out Panel Layout</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Slide-Out Panel Layout</title>
 
-<style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: Arial, sans-serif;
-    }
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
 
-    body {
-        display: flex;
-        height: 100vh;
-        overflow: hidden;
-    }
+        body {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
 
-    /* Left Navigation */
-    .sidebar {
-        width: 220px;
-        background: #1f2937;
-        color: white;
-        padding: 20px;
-    }
+        /* Left Navigation */
+        .sidebar {
+            width: 220px;
+            background: #1f2937;
+            color: white;
+            padding: 20px;
+        }
 
-    .sidebar h2 {
-        margin-bottom: 20px;
-    }
+        .sidebar h2 {
+            margin-bottom: 20px;
+        }
 
-    .nav-item {
-        padding: 10px;
-        cursor: pointer;
-        border-radius: 6px;
-    }
+        .nav-item {
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 6px;
+        }
 
-    .nav-item:hover {
-        background: #374151;
-    }
+        .nav-item:hover {
+            background: #374151;
+        }
 
-    /* Main Content */
-    .main-content {
-        flex: 1;
-        background: #f3f4f6;
-        padding: 40px;
-        transition: margin-right 0.3s ease;
-    }
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            background: #f3f4f6;
+            padding: 40px;
+            transition: margin-right 0.3s ease;
+        }
 
-    /* Right Slide Panel */
-    .right-panel {
-        position: fixed;
-        right: -350px;
-        top: 0;
-        width: 350px;
-        height: 100%;
-        background: white;
-        box-shadow: -4px 0 10px rgba(0,0,0,0.1);
-        padding: 20px;
-        transition: right 0.3s ease;
-    }
+        /* Right Slide Panel */
+        .right-panel {
+            position: fixed;
+            right: -350px;
+            top: 0;
+            width: 350px;
+            height: 100%;
+            background: white;
+            box-shadow: -4px 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            transition: right 0.3s ease;
+        }
 
-    .right-panel.active {
-        right: 0;
-    }
+        .right-panel.active {
+            right: 0;
+        }
 
-    .close-btn {
-        cursor: pointer;
-        font-weight: bold;
-        margin-bottom: 20px;
-        display: inline-block;
-    }
-
-</style>
-<script>
+        .close-btn {
+            cursor: pointer;
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+    </style>
+    <script>
 
         (function (publicAppId) {
             (function (p, e, n, d, o) {
@@ -89,7 +89,7 @@
             // This function creates visitors and accounts in Pendo
             // You will need to replace <visitor-id-goes-here> and <account-id-goes-here> with values you use in your app
             // Please use Strings, Numbers, or Bools for value types.
-// Visitor 1 / Account 1
+            // Visitor 1 / Account 1
             pendo.initialize({
                 visitor: {
                     id: "user_003", // Required if user is logged in
@@ -115,8 +115,8 @@
                     // You can add any additional account level key-values here,
                     // as long as it's not one of the above reserved names.
                 }
-            }); 
- 
+            });
+
             /* pendo.initialize({
                 visitor: {
                     id: "user_003", // Required if user is logged in
@@ -144,14 +144,22 @@
                 }
             }); */
         })('7d66e821-ff08-4795-a340-1a3ebbd3df49');
-</script>
+    </script>
 </head>
+
 <body>
 
     <!-- Left Navigation -->
     <div class="sidebar">
         <h2>Navigation</h2>
         <div class="nav-item" onclick="togglePanel()">Latest update</div>
+        <p>
+            <button type="button" aria-label="Help"
+                style="border: none; background: none; padding: 0; cursor: pointer;">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/5/55/Question_Mark.svg" alt="Help" width="18"
+                    height="18" />
+            </button>
+        </p>
     </div>
 
     <!-- Main Area -->
@@ -166,11 +174,12 @@
         <h2>Latest Update</h2>
     </div>
 
-<script>
-    function togglePanel() {
-        document.getElementById("rightPanel").classList.toggle("active");
-    }
-</script>
+    <script>
+        function togglePanel() {
+            document.getElementById("rightPanel").classList.toggle("active");
+        }
+    </script>
 
 </body>
+
 </html>
