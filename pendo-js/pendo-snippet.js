@@ -18,7 +18,7 @@
                     id: "user_001", // Required if user is logged in
                     email: "peter_pendo@schroeck-online.de", // Recommended if using Pendo Feedback, or NPS Email
                     full_name: "Peter Pendo", // Recommended if using Pendo Feedback
-                    role: "Admin",// Optional
+                    role: "User",// Optional
                     env:"PROD",
                     location: "DE" //Metadata 1
 
