@@ -19,6 +19,7 @@
                     email: "peter_pendo@schroeck-online.de", // Recommended if using Pendo Feedback, or NPS Email
                     full_name: "Peter Pendo", // Recommended if using Pendo Feedback
                     role: "Admin",// Optional
+                    env:"PROD",
                     location: "DE" //Metadata 1
 
                     // You can add any additional visitor level key-values here,
