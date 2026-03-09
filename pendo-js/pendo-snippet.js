@@ -15,9 +15,9 @@
 // Visitor 1 / Account 1
             pendo.initialize({
                 visitor: {
-                    id: "user_001", // Required if user is logged in
-                    email: "peter_pendo@schroeck-online.de", // Recommended if using Pendo Feedback, or NPS Email
-                    full_name: "Peter Pendo", // Recommended if using Pendo Feedback
+                    id: "user_004", // Required if user is logged in
+                    email: "anna_pendo@schroeck-online.de", // Recommended if using Pendo Feedback, or NPS Email
+                    full_name: "Anna Pendo", // Recommended if using Pendo Feedback
                     role: "Admin",// Optional
                     env:"PROD",
                     location: "DE" //Metadata 1
@@ -27,11 +27,10 @@
                 },
 
                 account: {
-                    id: "account_001", // Highly recommended, required if using Pendo Feedback or OEM Adopt
-                    name: "Schroeck GmbH",
+                    id: "account_004", // Highly recommended, required if using Pendo Feedback or OEM Adopt
+                    name: "Anna's Company",
                     is_paying: true,
-                    segment: "ENT",
-                    salesforce__industry: "Through SDK"
+                    segment: "SMB"
                     // monthly_value:// Recommended if using Pendo Feedback
                     // planLevel:    // Optional
                     // planPrice:    // Optional
