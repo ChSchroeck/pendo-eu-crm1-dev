@@ -7,6 +7,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pendo Guide Test Page</title>
+  <title>Pendo Guide Test Page</title>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -483,59 +484,35 @@
       const time = now.toLocaleTimeString('en-US', { hour12: false }) + '.' + String(now.getMilliseconds()).padStart(3, '0');
 
       const div = document.createElement('div');
-      div.className = 'log-entry' + (entry.inGuide ? '' : ' no-guide');
+      div.className = 'log-entry';
 
       div.innerHTML = `
         <div class="log-time">${time} — click #${++logCount}</div>
-        <span class="log-tag ${entry.inGuide ? '' : 'outside'}">${entry.inGuide ? 'IN GUIDE' : 'OUTSIDE'}</span>
-        <div class="log-element">&lt;${entry.tag}${entry.id ? ' id="' + entry.id + '"' : ''}${entry.className ? ' class="' + entry.className + '"' : ''}&gt;</div>
+        <div class="log-element">&lt;${entry.tag}${entry.id ? ' id="' + entry.id + '"' : ''}&gt;</div>
+        ${entry.className ? `<div class="log-guide-id">class: "${entry.className}"</div>` : ''}
         ${entry.text ? `<div class="log-guide-id">text: "${entry.text}"</div>` : ''}
-        ${entry.guideId ? `<div class="log-guide-id">guide id: ${entry.guideId}</div>` : ''}
       `;
 
-      list.prepend(div); // newest at top
+      list.prepend(div);
     }
 
     // ─── CORE LISTENER ───────────────────────────────────────────────
-    // Tries all known Pendo guide wrapper classes
-    function findPendoGuideEl(target) {
-      return target.closest('._pendo-step-container_')
-          || target.closest('._pendo-guide-container_')
-          || target.closest('._pendo-lightbox_')
-          || target.closest('._pendo-guide_')
-          || target.closest('[class*="_pendo-step-container"]')
-          || target.closest('[class*="_pendo-guide-walkthrough"]');
-    }
-
     document.addEventListener('click', function(e) {
-      const guideEl = findPendoGuideEl(e.target);
+      const guideEl = e.target.closest('._pendo-step-container');
+      if (!guideEl) return;
 
       const tag = e.target.tagName.toLowerCase();
       const id = e.target.id || null;
-      const className = e.target.className && typeof e.target.className === 'string'
-        ? e.target.className.trim().split(' ').filter(c => !c.startsWith('_pendo') && !c.startsWith('pendo') && !c.startsWith('bb-')).join(' ').trim() || null
-        : null;
       const text = e.target.innerText ? e.target.innerText.trim().slice(0, 40) : null;
 
-      if (guideEl) {
-        // Get guide ID from the walkthrough container which carries data-id
-        const walkthroughEl = document.querySelector('._pendo-guide-walkthrough_');
-        const guideId = walkthroughEl?.dataset?.id
-          || guideEl.dataset?.id
-          || guideEl.getAttribute('data-id')
-          || '(check DOM)';
+      const className = typeof e.target.className === 'string'
+        ? e.target.className.trim()
+            .split(' ')
+            .filter(c => c && !c.startsWith('_pendo') && !c.startsWith('pendo') && !c.startsWith('bb-'))
+            .join(' ') || null
+        : null;
 
-        addLog({
-          inGuide: true,
-          tag,
-          id,
-          className,
-          text,
-          guideId
-        });
-      }
-      // Uncomment below to also log clicks OUTSIDE guides:
-      // else { addLog({ inGuide: false, tag, id, className, text, guideId: null }); }
+      addLog({ tag, id, className, text });
     });
   </script>
 </body>
