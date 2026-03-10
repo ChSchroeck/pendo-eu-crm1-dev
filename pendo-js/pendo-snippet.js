@@ -15,21 +15,21 @@
 // Visitor 1 / Account 1
             pendo.initialize({
                 visitor: {
-                    id: "user_004", // Required if user is logged in
-                    email: "anna_pendo@schroeck-online.de", // Recommended if using Pendo Feedback, or NPS Email
-                    full_name: "Anna Pendo", // Recommended if using Pendo Feedback
-                    role: "Admin",// Optional
+                    id: "user_005", // Required if user is logged in
+                    email: "petra_pendo@schroeck-online.de", // Recommended if using Pendo Feedback, or NPS Email
+                    full_name: "Petra Pendo", // Recommended if using Pendo Feedback
+                    role: "User",// Optional
                     env:"PROD",
-                    location: "DE" //Metadata 1
+                    location: "FR" //Metadata 1
 
                     // You can add any additional visitor level key-values here,
                     // as long as it's not one of the above reserved names.
                 },
 
                 account: {
-                    id: "account_004", // Highly recommended, required if using Pendo Feedback or OEM Adopt
-                    name: "Anna's Company",
-                    is_paying: true,
+                    id: "account_005", // Highly recommended, required if using Pendo Feedback or OEM Adopt
+                    name: "Petra's Schreinerei",
+                    is_paying: false,
                     segment: "SMB"
                     // monthly_value:// Recommended if using Pendo Feedback
                     // planLevel:    // Optional
