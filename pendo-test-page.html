@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <!-- Pendo snippet-->
+      <script src="pendo-js/pendo-snippet.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pendo Guide Test Page</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0e0e10;
+      --surface: #18181c;
+      --surface2: #222228;
+      --border: #2e2e38;
+      --accent: #00e5a0;
+      --accent2: #ff6b6b;
+      --accent3: #5b8dee;
+      --text: #e8e8f0;
+      --muted: #6b6b80;
+      --mono: 'IBM Plex Mono', monospace;
+      --sans: 'IBM Plex Sans', sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      grid-template-rows: auto 1fr;
+    }
+
+    /* HEADER */
+    header {
+      grid-column: 1 / -1;
+      padding: 20px 32px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--surface);
+    }
+
+    header .dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 10px var(--accent);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    header h1 {
+      font-family: var(--mono);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: 0.05em;
+    }
+
+    header p {
+      font-size: 12px;
+      color: var(--muted);
+      margin-left: auto;
+      font-family: var(--mono);
+    }
+
+    /* MAIN CONTENT */
+    main {
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      overflow-y: auto;
+    }
+
+    .section-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    /* CARDS */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+      cursor: pointer;
+      transition: border-color 0.2s, transform 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--card-color, var(--accent));
+      opacity: 0.6;
+    }
+
+    .card:hover {
+      border-color: var(--card-color, var(--accent));
+      transform: translateY(-2px);
+    }
+
+    .card-icon {
+      font-size: 28px;
+      margin-bottom: 12px;
+    }
+
+    .card h3 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .card p {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* FEATURE ROW */
+    .feature-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .feature-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .feature-box:hover {
+      border-color: var(--accent3);
+    }
+
+    .feature-icon {
+      width: 44px; height: 44px;
+      border-radius: 8px;
+      background: var(--surface2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .feature-box h4 { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+    .feature-box p { font-size: 12px; color: var(--muted); }
+
+    /* BUTTONS ROW */
+    .buttons-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+
+    .btn:hover { opacity: 0.85; transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+
+    .btn-primary { background: var(--accent); color: #0e0e10; }
+    .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+    .btn-danger { background: var(--accent2); color: #fff; }
+    .btn-info { background: var(--accent3); color: #fff; }
+
+    /* STATS */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 20px;
+      cursor: default;
+    }
+
+    .stat .value {
+      font-family: var(--mono);
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .stat .label {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* LOG PANEL */
+    aside {
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .log-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .log-header span {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .clear-btn {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 3px 8px;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .clear-btn:hover { color: var(--accent2); border-color: var(--accent2); }
+
+    .log-empty {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 11px;
+      gap: 8px;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .log-empty .icon { font-size: 32px; opacity: 0.4; }
+
+    #log-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    #log-list::-webkit-scrollbar { width: 4px; }
+    #log-list::-webkit-scrollbar-track { background: transparent; }
+    #log-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .log-entry {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 6px;
+      padding: 10px 12px;
+      animation: slideIn 0.2s ease;
+    }
+
+    .log-entry.no-guide {
+      border-left-color: var(--muted);
+      opacity: 0.5;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(8px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .log-time {
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .log-tag {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 9px;
+      padding: 1px 5px;
+      border-radius: 3px;
+      background: var(--accent);
+      color: var(--bg);
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .log-tag.outside { background: var(--muted); color: var(--bg); }
+
+    .log-element {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .log-guide-id {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--accent3);
+    }
+
+    /* NOTE BOX */
+    .note {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent3);
+      border-radius: 8px;
+      padding: 14px 18px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .note strong { color: var(--text); }
+    .note code {
+      font-family: var(--mono);
+      font-size: 11px;
+      background: var(--surface);
+      padding: 1px 5px;
+      border-radius: 3px;
+      color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="dot"></div>
+    <h1>PENDO GUIDE TEST PAGE</h1>
+    <p>Attach guides to any element below</p>
+  </header>
+
+  <main>
+    <div>
+      <div class="section-label">Feature Cards — good anchors for tooltip guides</div>
+      <div class="cards">
+        <div class="card" id="card-analytics" style="--card-color: #00e5a0">
+          <div class="card-icon">📊</div>
+          <h3>Analytics</h3>
+          <p>Track user behavior and product engagement across your app.</p>
+        </div>
+        <div class="card" id="card-guides" style="--card-color: #5b8dee">
+          <div class="card-icon">🗺️</div>
+          <h3>Guides</h3>
+          <p>Create onboarding flows and in-app walkthroughs for users.</p>
+        </div>
+        <div class="card" id="card-feedback" style="--card-color: #ff6b6b">
+          <div class="card-icon">💬</div>
+          <h3>Feedback</h3>
+          <p>Collect NPS, polls, and open-ended responses from users.</p>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label">Action Buttons — great for lightbox or banner guides</div>
+      <div class="buttons-row">
+        <button class="btn btn-primary" id="btn-start">Get Started</button>
+        <button class="btn btn-secondary" id="btn-settings">Settings</button>
+        <button class="btn btn-info" id="btn-tour">Take a Tour</button>
+        <button class="btn btn-danger" id="btn-reset">Reset Demo</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label">Feature Highlights — tooltip anchors</div>
+      <div class="feature-row">
+        <div class="feature-box" id="feature-segments">
+          <div class="feature-icon">🎯</div>
+          <div>
+            <h4>Segments</h4>
+            <p>Target guides to specific user groups</p>
+          </div>
+        </div>
+        <div class="feature-box" id="feature-paths">
+          <div class="feature-icon">🔀</div>
+          <div>
+            <h4>Paths</h4>
+            <p>Visualize user navigation through your product</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label">Stats — use as a badge guide anchor</div>
+      <div class="stats">
+        <div class="stat" id="stat-mau"><div class="value">12.4k</div><div class="label">Monthly Active Users</div></div>
+        <div class="stat" id="stat-guides"><div class="value">38</div><div class="label">Active Guides</div></div>
+        <div class="stat" id="stat-nps"><div class="value">72</div><div class="label">NPS Score</div></div>
+        <div class="stat" id="stat-adoption"><div class="value">64%</div><div class="label">Feature Adoption</div></div>
+      </div>
+    </div>
+
+    <div class="note">
+      <strong>How to use:</strong> Connect a Pendo guide to any element above using its <code>id</code> as the CSS selector (e.g. <code>#card-analytics</code>). When a guide is visible and you click inside it, the event log → will capture it.
+    </div>
+  </main>
+
+  <!-- EVENT LOG PANEL -->
+  <aside>
+    <div class="log-header">
+      <span>⬡ Guide Click Log</span>
+      <button class="clear-btn" onclick="clearLog()">CLEAR</button>
+    </div>
+    <div id="log-empty" class="log-empty">
+      <div class="icon">🎯</div>
+      <div>Waiting for guide clicks…<br>Trigger a Pendo guide,<br>then click inside it.</div>
+    </div>
+    <div id="log-list" style="display:none"></div>
+  </aside>
+
+  <script>
+    let logCount = 0;
+
+    function clearLog() {
+      document.getElementById('log-list').innerHTML = '';
+      document.getElementById('log-list').style.display = 'none';
+      document.getElementById('log-empty').style.display = 'flex';
+      logCount = 0;
+    }
+
+    function addLog(entry) {
+      const empty = document.getElementById('log-empty');
+      const list = document.getElementById('log-list');
+      empty.style.display = 'none';
+      list.style.display = 'flex';
+
+      const now = new Date();
+      const time = now.toLocaleTimeString('en-US', { hour12: false }) + '.' + String(now.getMilliseconds()).padStart(3, '0');
+
+      const div = document.createElement('div');
+      div.className = 'log-entry' + (entry.inGuide ? '' : ' no-guide');
+
+      div.innerHTML = `
+        <div class="log-time">${time} — click #${++logCount}</div>
+        <span class="log-tag ${entry.inGuide ? '' : 'outside'}">${entry.inGuide ? 'IN GUIDE' : 'OUTSIDE'}</span>
+        <div class="log-element">&lt;${entry.tag}${entry.id ? ' id="' + entry.id + '"' : ''}${entry.className ? ' class="' + entry.className + '"' : ''}&gt;</div>
+        ${entry.text ? `<div class="log-guide-id">text: "${entry.text}"</div>` : ''}
+        ${entry.guideId ? `<div class="log-guide-id">guide id: ${entry.guideId}</div>` : ''}
+      `;
+
+      list.prepend(div); // newest at top
+    }
+
+    // ─── CORE LISTENER ───────────────────────────────────────────────
+    document.addEventListener('click', function(e) {
+      const guideEl = e.target.closest('._pendo-guide_');
+
+      const tag = e.target.tagName.toLowerCase();
+      const id = e.target.id || null;
+      const className = e.target.className && typeof e.target.className === 'string'
+        ? e.target.className.trim().split(' ').filter(c => !c.startsWith('_pendo')).join(' ').trim() || null
+        : null;
+      const text = e.target.innerText ? e.target.innerText.trim().slice(0, 40) : null;
+
+      if (guideEl) {
+        addLog({
+          inGuide: true,
+          tag,
+          id,
+          className,
+          text,
+          guideId: guideEl.dataset.id || guideEl.getAttribute('data-id') || '(check DOM)'
+        });
+      }
+      // Uncomment below to also log clicks OUTSIDE guides:
+      // else { addLog({ inGuide: false, tag, id, className, text, guideId: null }); }
+    });
+  </script>
+</body>
+</html>
