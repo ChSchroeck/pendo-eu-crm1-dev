@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-   <!-- Pendo snippet-->
-      <script src="pendo-js/pendo-snippet.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pendo Guide Test Page</title>
@@ -496,24 +494,41 @@
     }
 
     // ─── CORE LISTENER ───────────────────────────────────────────────
+    // Tries all known Pendo guide wrapper classes
+    function findPendoGuideEl(target) {
+      return target.closest('._pendo-step-container_')
+          || target.closest('._pendo-guide-container_')
+          || target.closest('._pendo-lightbox_')
+          || target.closest('._pendo-guide_')
+          || target.closest('[class*="_pendo-step-container"]')
+          || target.closest('[class*="_pendo-guide-walkthrough"]');
+    }
+
     document.addEventListener('click', function(e) {
-      const guideEl = e.target.closest('._pendo-guide_');
+      const guideEl = findPendoGuideEl(e.target);
 
       const tag = e.target.tagName.toLowerCase();
       const id = e.target.id || null;
       const className = e.target.className && typeof e.target.className === 'string'
-        ? e.target.className.trim().split(' ').filter(c => !c.startsWith('_pendo')).join(' ').trim() || null
+        ? e.target.className.trim().split(' ').filter(c => !c.startsWith('_pendo') && !c.startsWith('pendo') && !c.startsWith('bb-')).join(' ').trim() || null
         : null;
       const text = e.target.innerText ? e.target.innerText.trim().slice(0, 40) : null;
 
       if (guideEl) {
+        // Get guide ID from the walkthrough container which carries data-id
+        const walkthroughEl = document.querySelector('._pendo-guide-walkthrough_');
+        const guideId = walkthroughEl?.dataset?.id
+          || guideEl.dataset?.id
+          || guideEl.getAttribute('data-id')
+          || '(check DOM)';
+
         addLog({
           inGuide: true,
           tag,
           id,
           className,
           text,
-          guideId: guideEl.dataset.id || guideEl.getAttribute('data-id') || '(check DOM)'
+          guideId
         });
       }
       // Uncomment below to also log clicks OUTSIDE guides:
