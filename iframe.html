@@ -1,15 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-   <!-- Pendo snippet-->
-    <script src="pendo-js/pendo-snippet.js"></script>
+  <!-- Pendo snippet-->
+  <script>
+    (function (publicAppId) {
+      (function (p, e, n, d, o) {
+        var v, w, x, y, z; o = p[d] = p[d] || {}; o._q = o._q || [];
+        v = ['initialize', 'identify', 'updateOptions', 'pageLoad', 'track', 'trackAgent']; for (w = 0, x = v.length; w < x; ++w)(function (m) {
+          o[m] = o[m] || function () { o._q[m === v[0] ? 'unshift' : 'push']([m].concat([].slice.call(arguments, 0))); };
+        })(v[w]);
+        y = e.createElement(n); y.async = !0; y.src = 'https://cdn.eu.pendo.io/agent/static/' + publicAppId + '/pendo.js';
+        z = e.getElementsByTagName(n)[0]; z.parentNode.insertBefore(y, z);
+      })(window, document, 'script', 'pendo');
+      pendo.initialize({
+        visitor: {
+          id: "user_005", // Required if user is logged in
+          email: "petra_pendo@schroeck-online.de", // Recommended if using Pendo Feedback, or NPS Email
+          full_name: "Petra Pendo", // Recommended if using Pendo Feedback
+          role: "User",// Optional
+          env: "PROD",
+          location: "FR" //Metadata 1
+        },
+
+        account: {
+          id: "account_005", // Highly recommended, required if using Pendo Feedback or OEM Adopt
+          name: "Petra's Schreinerei",
+          is_paying: false,
+          segment: "SMB"
+        },
+        autoFrameInstall: true
+      });
+    })('7d66e821-ff08-4795-a340-1a3ebbd3df49');
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Frame Layout</title>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-    html, body {
+    html,
+    body {
       height: 100%;
       background: #0f0f0f;
       font-family: 'Courier New', monospace;
@@ -35,11 +72,20 @@
       display: block;
     }
 
-    .frame-header { grid-area: header; }
-    .frame-left   { grid-area: left; }
-    .frame-main   { grid-area: main; }
+    .frame-header {
+      grid-area: header;
+    }
+
+    .frame-left {
+      grid-area: left;
+    }
+
+    .frame-main {
+      grid-area: main;
+    }
   </style>
 </head>
+
 <body>
   <div class="layout">
     <div class="frame-header">
@@ -53,4 +99,5 @@
     </div>
   </div>
 </body>
+
 </html>
