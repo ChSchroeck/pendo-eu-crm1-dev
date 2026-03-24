@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <!-- Pendo snippet-->
+    <script src="pendo-js/pendo-snippet.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Frame Layout</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      background: #0f0f0f;
+      font-family: 'Courier New', monospace;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-rows: 72px 1fr;
+      grid-template-columns: 220px 1fr;
+      grid-template-areas:
+        "header header"
+        "left   main";
+      height: 100vh;
+      gap: 3px;
+      background: #1a1a1a;
+      padding: 3px;
+    }
+
+    iframe {
+      border: none;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .frame-header { grid-area: header; }
+    .frame-left   { grid-area: left; }
+    .frame-main   { grid-area: main; }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <div class="frame-header">
+      <iframe src="frames/header.html" title="Header"></iframe>
+    </div>
+    <div class="frame-left">
+      <iframe src="frames/left.html" title="Left Sidebar"></iframe>
+    </div>
+    <div class="frame-main">
+      <iframe src="frames/main.html" title="Main Content"></iframe>
+    </div>
+  </div>
+</body>
+</html>
