@@ -1,0 +1,96 @@
+<html>
+
+<head>
+    <!-- Pendo snippet-->
+    <script src="pendo-js/pendo-snippet.js"></script>
+
+</head>
+
+<body>
+    <script>
+        pendo.track("Agent_Launched", {
+            plan: "Pro Annual",
+            accountType: "Chatter"
+        });
+    </script>
+    <p id="output">Initial message...</p>
+    <!-- Agent Analytics  -->
+    <script>
+        const CONV_ID = Math.floor(Date.now() / 1000).toString();
+        // User Prompt
+        console.log("User prompting")
+        document.getElementById('output').textContent += '<p>Plese create an Opportunity for Account Schroeck-Online GmbH</p>';
+        window.pendo.trackAgent('prompt', {
+            agentId: 'h-R7idVHvaGRpnZKI2a66fwXiYE',
+            conversationId: CONV_ID,
+            messageId: 'msg_001',
+            content: 'Plese create an Opportunity for Account Schroeck-Online GmbH',
+            modelUsed: 'internal-1',
+            suggestedPrompt: false,
+            toolsUsed: [],
+            fileUploaded: false
+        });
+        // Agent Response
+        setTimeout(() => {
+            console.log("Agent responding");
+            document.getElementById('output').textContent += '<p>Sure, happy to help. Is this an upsell or a new customer</p>';
+            window.pendo.trackAgent('agent_response', {
+                agentId: 'h-R7idVHvaGRpnZKI2a66fwXiYE',
+                conversationId: CONV_ID,
+                messageId: 'msg_002',
+                content: 'Is this an upsell or a new customer?',
+                modelUsed: 'internal-1',
+                suggestedPrompt: true,
+                toolsUsed: ['knowledge_base'],
+                fileUploaded: false
+            });
+            setTimeout(() => {
+                //User Reacts
+                console.log("User reacting");
+                document.getElementById('output').textContent += '<p>upsell</p>';
+                window.pendo.trackAgent('user_reaction', {
+                    agentId: 'h-R7idVHvaGRpnZKI2a66fwXiYE',
+                    conversationId: CONV_ID,
+                    messageId: 'msg_002', // The reaction is tied to the same messageId as the response
+                    content: 'upsell', // Can be "positive", "negative", or "mixed"
+                    modelUsed: 'internal-1',
+                    suggestedPrompt: false,
+                    toolsUsed: ['knowledge_base'],
+                    fileUploaded: false
+                });
+                setTimeout(() => {
+                    // User Prompt
+                    console.log("User rage promting")
+                    document.getElementById('output').textContent += '<p>Working on your opportunity';
+                    window.pendo.trackAgent('prompt', {
+                        agentId: 'h-R7idVHvaGRpnZKI2a66fwXiYE',
+                        conversationId: CONV_ID,
+                        messageId: 'msg_001',
+                        content: 'Creating opportunity now',
+                        modelUsed: 'internal-1',
+                        suggestedPrompt: false,
+                        toolsUsed: [],
+                        fileUploaded: false
+                    });
+                    setTimeout(() => {
+                        // User Prompt
+                        console.log("Done")
+                        document.getElementById('output').textContent += '<p>Opportunity created';
+                        window.pendo.trackAgent('agent_response', {
+                            agentId: 'h-R7idVHvaGRpnZKI2a66fwXiYE',
+                            conversationId: CONV_ID,
+                            messageId: 'msg_001',
+                            content: 'Creating opportunity now',
+                            modelUsed: 'internal-1',
+                            suggestedPrompt: false,
+                            toolsUsed: [],
+                            fileUploaded: false
+                        });
+                    }, 5000);
+                }, 5000);
+            }, 10000);
+        }, 15000);
+    </script>
+</body>
+
+</html>
