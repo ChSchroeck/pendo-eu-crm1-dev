@@ -71,13 +71,13 @@
                         toolsUsed: [],
                         fileUploaded: false
                     });
-                    window.pendo.track("Agent_Conversation_End", {
-            plan: "Pro Annual",
-            accountType: "Chatter"
-        });
                 }, 5000);
             }, 10000);
         }, 15000);
+         window.pendo.track("Agent_Conversation_End", {
+            plan: "Pro Annual",
+            accountType: "Chatter"
+        });
     </script>
 </body>
 
