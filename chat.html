@@ -7,7 +7,7 @@
 
 <body>
     <script>
-        pendo.track("Agent_Launched", {
+        pendo.track("Agent_Conversation_Start", {
             plan: "Pro Annual",
             accountType: "Chatter"
         });
@@ -74,6 +74,12 @@
                 }, 5000);
             }, 10000);
         }, 15000);
+    </script>
+    <script>
+        pendo.track("Agent_Conversation_End", {
+            plan: "Pro Annual",
+            accountType: "Chatter"
+        });
     </script>
 </body>
 
