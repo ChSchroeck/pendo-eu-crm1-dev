@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pendo Shadow DOM Testbed</title>
+
+  <!-- ============================================================
+       PENDO SNIPPET — paste your snippet here
+       ============================================================ -->
+  <!-- Pendo snippet-->
+    <script src="pendo-js/pendo-snippet.js"></script>
+  <!-- ============================================================ -->
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #F7F6F3;
+      --surface:   #FFFFFF;
+      --border:    #E2E0DA;
+      --text:      #1A1917;
+      --muted:     #6B6860;
+      --accent:    #185FA5;
+      --accent-bg: #E6F1FB;
+      --green:     #3B6D11;
+      --green-bg:  #EAF3DE;
+      --red:       #A32D2D;
+      --red-bg:    #FCEBEB;
+      --amber:     #854F0B;
+      --amber-bg:  #FAEEDA;
+      --radius:    8px;
+      --mono:      'Menlo', 'Consolas', monospace;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── Layout ── */
+    .site-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .site-header-brand {
+      font-weight: 600;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .site-header-brand .dot {
+      width: 8px; height: 8px; border-radius: 50%; background: var(--accent);
+    }
+    .site-nav { display: flex; gap: 4px; }
+    .site-nav a {
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 14px;
+      padding: 6px 12px;
+      border-radius: var(--radius);
+      transition: background 0.12s, color 0.12s;
+    }
+    .site-nav a:hover, .site-nav a.active {
+      background: var(--accent-bg);
+      color: var(--accent);
+    }
+
+    main { max-width: 900px; margin: 0 auto; padding: 40px 24px 80px; }
+
+    .page-title { font-size: 28px; font-weight: 600; margin-bottom: 6px; }
+    .page-subtitle { color: var(--muted); font-size: 15px; margin-bottom: 36px; }
+
+    /* ── Section shells ── */
+    .dom-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 28px;
+      overflow: hidden;
+    }
+    .dom-section-header {
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .dom-section-title { font-weight: 600; font-size: 15px; }
+    .dom-section-desc { font-size: 13px; color: var(--muted); }
+    .dom-section-body { padding: 20px; }
+
+    .badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+    .badge-regular { background: var(--green-bg); color: var(--green); }
+    .badge-open    { background: var(--accent-bg); color: var(--accent); }
+    .badge-closed  { background: var(--red-bg);    color: var(--red);    }
+
+    /* ── Form controls ── */
+    .form-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+    .form-row:last-child { margin-bottom: 0; }
+    label { font-size: 13px; font-weight: 500; color: var(--muted); }
+    input[type="text"], input[type="email"], input[type="search"], select, textarea {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 14px;
+      font-family: inherit;
+      background: var(--bg);
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(24, 95, 165, 0.12);
+    }
+    textarea { resize: vertical; min-height: 80px; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 18px;
+      border-radius: var(--radius);
+      font-size: 14px;
+      font-family: inherit;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: background 0.12s, border-color 0.12s;
+    }
+    .btn-primary   { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn-primary:hover   { background: #0F4A85; }
+    .btn-secondary { background: var(--surface); color: var(--text); border-color: var(--border); }
+    .btn-secondary:hover { background: var(--bg); }
+    .btn-danger    { background: var(--red-bg); color: var(--red); border-color: #F0BEBE; }
+    .btn-danger:hover    { background: #F7D0D0; }
+    .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+
+    /* ── Shadow boundary callout ── */
+    .shadow-boundary {
+      border: 1.5px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-top: 12px;
+      position: relative;
+    }
+    .shadow-boundary-label {
+      position: absolute;
+      top: -10px;
+      left: 14px;
+      font-size: 11px;
+      font-family: var(--mono);
+      background: var(--surface);
+      padding: 0 6px;
+      color: var(--muted);
+    }
+    .shadow-boundary.open  { border-color: #85B7EB; }
+    .shadow-boundary.open  .shadow-boundary-label { color: var(--accent); }
+    .shadow-boundary.closed { border-color: #F09595; }
+    .shadow-boundary.closed .shadow-boundary-label { color: var(--red); }
+
+    /* ── Info callout ── */
+    .callout {
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      font-size: 13px;
+      line-height: 1.6;
+      margin-top: 16px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .callout-green  { background: var(--green-bg); color: var(--green);  border: 1px solid #C0DD97; }
+    .callout-blue   { background: var(--accent-bg); color: #0C447C;       border: 1px solid #85B7EB; }
+    .callout-red    { background: var(--red-bg);    color: var(--red);    border: 1px solid #F09595; }
+    .callout-amber  { background: var(--amber-bg);  color: var(--amber);  border: 1px solid #EF9F27; }
+    .callout-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+    .callout strong { font-weight: 600; }
+
+    /* ── Tabs ── */
+    .tab-bar {
+      display: flex;
+      gap: 2px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+    .tab {
+      padding: 9px 16px;
+      font-size: 14px;
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-family: inherit;
+      color: var(--muted);
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: color 0.12s;
+    }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 500; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── Cards / grid ── */
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 4px; }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+    }
+    .card-label { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+    .card-value { font-size: 22px; font-weight: 600; }
+
+    /* ── Toggle / checkbox ── */
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-info .toggle-title { font-size: 14px; font-weight: 500; }
+    .toggle-info .toggle-desc  { font-size: 13px; color: var(--muted); }
+    .toggle {
+      width: 40px; height: 22px; border-radius: 11px;
+      background: var(--border); position: relative; cursor: pointer;
+      border: none; flex-shrink: 0; transition: background 0.2s;
+    }
+    .toggle::after {
+      content: ''; position: absolute; top: 3px; left: 3px;
+      width: 16px; height: 16px; border-radius: 50%;
+      background: #fff; transition: transform 0.2s;
+    }
+    .toggle.on { background: var(--accent); }
+    .toggle.on::after { transform: translateX(18px); }
+
+    /* ── Modal overlay ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.4); z-index: 200;
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--surface); border-radius: 12px;
+      padding: 28px; max-width: 440px; width: 90%;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    }
+    .modal-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+    .modal-body  { font-size: 14px; color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 8px; }
+
+    /* ── Code block ── */
+    .code-block {
+      background: #1A1917; color: #E8E5DF;
+      border-radius: var(--radius); padding: 16px;
+      font-family: var(--mono); font-size: 13px;
+      line-height: 1.7; overflow-x: auto; margin-top: 12px;
+    }
+    .code-block .cm  { color: #7A7060; }  /* comment */
+    .code-block .ck  { color: #85B7EB; }  /* keyword */
+    .code-block .cs  { color: #9FE1CB; }  /* string */
+    .code-block .cf  { color: #FAC775; }  /* function */
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: #1A1917; color: #fff;
+      padding: 10px 18px; border-radius: var(--radius);
+      font-size: 14px; opacity: 0; pointer-events: none;
+      transition: opacity 0.2s; z-index: 999;
+    }
+    #toast.show { opacity: 1; }
+
+    /* ── Misc ── */
+    hr.section-hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+    .mono { font-family: var(--mono); font-size: 12px; }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+  </style>
+</head>
+<body>
+
+<!-- ── Site chrome ── -->
+<header class="site-header" data-pendo-id="site-header">
+  <div class="site-header-brand">
+    <span class="dot"></span>
+    Pendo Shadow DOM Testbed
+  </div>
+  <nav class="site-nav" data-pendo-id="main-nav">
+    <a href="#regular" class="active" data-pendo-id="nav-regular">Regular DOM</a>
+    <a href="#open"    data-pendo-id="nav-open">Open Shadow</a>
+    <a href="#closed"  data-pendo-id="nav-closed">Closed Shadow</a>
+    <a href="#mixed"   data-pendo-id="nav-mixed">Mixed page</a>
+  </nav>
+</header>
+
+<main>
+  <h1 class="page-title">Shadow DOM Testbed</h1>
+  <p class="page-subtitle">A real page to practice tagging regular DOM, open shadow DOM, and closed shadow DOM elements in Pendo.</p>
+
+  <!-- ═══════════════════════════════════════════════
+       SECTION 1 — Regular DOM
+  ════════════════════════════════════════════════ -->
+  <div class="dom-section" id="regular">
+    <div class="dom-section-header">
+      <span class="badge badge-regular">Regular DOM</span>
+      <div>
+        <div class="dom-section-title">Standard elements — fully in the light DOM</div>
+        <div class="dom-section-desc">Everything here is reachable by <span class="mono">document.querySelector()</span>. Tag these normally in the Pendo Tag Editor.</div>
+      </div>
+    </div>
+    <div class="dom-section-body">
+
+      <div class="callout callout-green">
+        <span class="callout-icon">✓</span>
+        <div><strong>Pendo can see all of this.</strong> Click any element in the Tag Editor and it will be identified immediately. CSS selectors work normally. No special configuration needed.</div>
+      </div>
+
+      <hr class="section-hr">
+
+      <div class="tab-bar" data-pendo-id="regular-tab-bar">
+        <button class="tab active" onclick="switchTab(this,'tab-contact')" data-pendo-id="tab-contact-btn">Contact form</button>
+        <button class="tab" onclick="switchTab(this,'tab-search')" data-pendo-id="tab-search-btn">Search</button>
+        <button class="tab" onclick="switchTab(this,'tab-settings')" data-pendo-id="tab-settings-btn">Settings</button>
+      </div>
+
+      <!-- Contact form tab -->
+      <div class="tab-panel active" id="tab-contact">
+        <form onsubmit="return false;" data-pendo-id="contact-form">
+          <div class="form-row">
+            <label for="name">Full name</label>
+            <input type="text" id="name" data-pendo-id="input-name" placeholder="Jane Smith">
+          </div>
+          <div class="form-row">
+            <label for="email">Email address</label>
+            <input type="email" id="email" data-pendo-id="input-email" placeholder="jane@company.com">
+          </div>
+          <div class="form-row">
+            <label for="topic">Topic</label>
+            <select id="topic" data-pendo-id="select-topic">
+              <option>General inquiry</option>
+              <option>Support request</option>
+              <option>Billing question</option>
+              <option>Feature request</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="message">Message</label>
+            <textarea id="message" data-pendo-id="textarea-message" placeholder="Tell us what you need..."></textarea>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-primary" data-pendo-id="btn-submit-contact" onclick="toast('Form submitted (regular DOM)')">Send message</button>
+            <button class="btn btn-secondary" data-pendo-id="btn-reset-contact" onclick="document.getElementById('contact-form').reset()">Clear</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Search tab -->
+      <div class="tab-panel" id="tab-search">
+        <div class="form-row">
+          <label for="search-input">Search</label>
+          <input type="search" id="search-input" data-pendo-id="input-search" placeholder="Search the docs...">
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" data-pendo-id="btn-search" onclick="toast('Search triggered (regular DOM)')">Search</button>
+        </div>
+        <div class="card-grid" style="margin-top:20px;" data-pendo-id="search-results">
+          <div class="card" data-pendo-id="result-1"><div class="card-label">Result</div><div class="card-value" style="font-size:14px;">Getting started guide</div></div>
+          <div class="card" data-pendo-id="result-2"><div class="card-label">Result</div><div class="card-value" style="font-size:14px;">API reference</div></div>
+          <div class="card" data-pendo-id="result-3"><div class="card-label">Result</div><div class="card-value" style="font-size:14px;">Release notes</div></div>
+        </div>
+      </div>
+
+      <!-- Settings tab -->
+      <div class="tab-panel" id="tab-settings">
+        <div data-pendo-id="settings-toggles">
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="toggle-title">Email notifications</div>
+              <div class="toggle-desc">Receive weekly digest emails</div>
+            </div>
+            <button class="toggle on" data-pendo-id="toggle-email" onclick="this.classList.toggle('on')"></button>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="toggle-title">Beta features</div>
+              <div class="toggle-desc">Get early access to new features</div>
+            </div>
+            <button class="toggle" data-pendo-id="toggle-beta" onclick="this.classList.toggle('on')"></button>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="toggle-title">Analytics sharing</div>
+              <div class="toggle-desc">Help improve the product with usage data</div>
+            </div>
+            <button class="toggle on" data-pendo-id="toggle-analytics" onclick="this.classList.toggle('on')"></button>
+          </div>
+        </div>
+        <div class="btn-row" style="margin-top:16px;">
+          <button class="btn btn-primary" data-pendo-id="btn-save-settings" onclick="toast('Settings saved (regular DOM)')">Save settings</button>
+          <button class="btn btn-danger"    data-pendo-id="btn-delete-account" onclick="document.getElementById('modal').classList.add('open')">Delete account</button>
+        </div>
+      </div>
+
+    </div>
+  </div><!-- /regular -->
+
+
+  <!-- ═══════════════════════════════════════════════
+       SECTION 2 — Open Shadow DOM
+  ════════════════════════════════════════════════ -->
+  <div class="dom-section" id="open">
+    <div class="dom-section-header">
+      <span class="badge badge-open">Open Shadow DOM</span>
+      <div>
+        <div class="dom-section-title">Web components with <span class="mono">mode: 'open'</span></div>
+        <div class="dom-section-desc">Shadow hosts are in the light DOM. <span class="mono">host.shadowRoot</span> returns the root — Pendo can traverse it.</div>
+      </div>
+    </div>
+    <div class="dom-section-body">
+
+      <div class="callout callout-blue">
+        <span class="callout-icon">ℹ</span>
+        <div><strong>Enable shadow DOM traversal in your Pendo agent.</strong> With that on, Pendo walks <span class="mono">.shadowRoot</span> on each host and can tag these elements. The shadow host below has <span class="mono">data-pendo-id</span> for reliable targeting.</div>
+      </div>
+
+      <hr class="section-hr">
+
+      <!-- Open shadow: date picker -->
+      <p style="font-size:13px;font-weight:500;margin-bottom:8px;">Date picker component (open shadow root)</p>
+      <div id="open-datepicker-host" data-pendo-id="open-datepicker-host"></div>
+
+      <div class="shadow-boundary open" style="margin-top:16px;">
+        <span class="shadow-boundary-label">#shadow-root (open) — contents rendered by JS below</span>
+        <p style="font-size:13px;color:var(--muted);">The fields inside are attached to the shadow root of <span class="mono">#open-datepicker-host</span>. In DevTools, expand the host to see the shadow tree. With Pendo shadow DOM support on, these are taggable.</p>
+      </div>
+
+      <hr class="section-hr">
+
+      <!-- Open shadow: rating widget -->
+      <p style="font-size:13px;font-weight:500;margin-bottom:8px;">Star rating component (open shadow root)</p>
+      <div id="open-rating-host" data-pendo-id="open-rating-host"></div>
+
+      <hr class="section-hr">
+
+      <!-- Open shadow: user card -->
+      <p style="font-size:13px;font-weight:500;margin-bottom:8px;">Profile card component (open shadow root)</p>
+      <div id="open-profile-host" data-pendo-id="open-profile-host"></div>
+
+      <div class="callout callout-amber" style="margin-top:16px;">
+        <span class="callout-icon">⚡</span>
+        <div><strong>Pro tip:</strong> Every host element above has a <span class="mono">data-pendo-id</span> attribute. Even without shadow DOM traversal, you can tag the host as a proxy for the component — useful when you care about the component being <em>present</em> rather than a specific inner element being clicked.</div>
+      </div>
+
+    </div>
+  </div><!-- /open -->
+
+
+  <!-- ═══════════════════════════════════════════════
+       SECTION 3 — Closed Shadow DOM
+  ════════════════════════════════════════════════ -->
+  <div class="dom-section" id="closed">
+    <div class="dom-section-header">
+      <span class="badge badge-closed">Closed Shadow DOM</span>
+      <div>
+        <div class="dom-section-title">Components with <span class="mono">mode: 'closed'</span></div>
+        <div class="dom-section-desc"><span class="mono">host.shadowRoot</span> returns <span class="mono">null</span>. Inner elements are inaccessible without early agent interception.</div>
+      </div>
+    </div>
+    <div class="dom-section-body">
+
+      <div class="callout callout-red">
+        <span class="callout-icon">✕</span>
+        <div><strong>Standard Pendo tagging cannot reach inside.</strong> The host is visible in the light DOM; the internals return <span class="mono">null</span>. Your options: <strong>(1)</strong> load the Pendo agent before these components mount to intercept <span class="mono">attachShadow()</span>, <strong>(2)</strong> tag the shadow host itself, or <strong>(3)</strong> use <span class="mono">pendo.track()</span> from inside the component code.</div>
+      </div>
+
+      <hr class="section-hr">
+
+      <!-- Closed shadow: video player -->
+      <p style="font-size:13px;font-weight:500;margin-bottom:8px;">Video player component (closed shadow root)</p>
+      <div id="closed-player-host" data-pendo-id="closed-player-host"></div>
+
+      <div class="shadow-boundary closed" style="margin-top:16px;">
+        <span class="shadow-boundary-label">#shadow-root (closed) — wall is up</span>
+        <p style="font-size:13px;color:var(--muted);">The play/pause, volume, and progress controls inside are attached to a closed shadow root. <span class="mono">document.querySelector('#closed-player-host').shadowRoot</span> returns <span class="mono">null</span> — try it in your DevTools console.</p>
+      </div>
+
+      <hr class="section-hr">
+
+      <!-- Closed shadow: payment form -->
+      <p style="font-size:13px;font-weight:500;margin-bottom:8px;">Payment widget (closed shadow root — like Stripe Elements)</p>
+      <div id="closed-payment-host" data-pendo-id="closed-payment-host"></div>
+
+      <hr class="section-hr">
+
+      <!-- pendo.track() code example -->
+      <p style="font-size:13px;font-weight:500;margin-bottom:4px;">Track events from inside closed components with <span class="mono">pendo.track()</span></p>
+      <div class="code-block">
+<span class="cm">// Inside your closed web component's source code</span>
+<span class="ck">const</span> shadow = element.<span class="cf">attachShadow</span>({ mode: <span class="cs">'closed'</span> });
+
+<span class="cm">// Wire up events where you have direct access</span>
+shadow.<span class="cf">querySelector</span>(<span class="cs">'.play-btn'</span>).<span class="cf">addEventListener</span>(<span class="cs">'click'</span>, () => {
+  pendo.<span class="cf">track</span>(<span class="cs">'Video Played'</span>, {
+    componentId: <span class="cs">'closed-player'</span>,
+    source:      <span class="cs">'shadow-dom'</span>
+  });
+});
+
+shadow.<span class="cf">querySelector</span>(<span class="cs">'.pay-btn'</span>).<span class="cf">addEventListener</span>(<span class="cs">'click'</span>, () => {
+  pendo.<span class="cf">track</span>(<span class="cs">'Payment Initiated'</span>, {
+    method: <span class="cs">'card'</span>,
+    source: <span class="cs">'shadow-dom'</span>
+  });
+});
+      </div>
+
+    </div>
+  </div><!-- /closed -->
+
+
+  <!-- ═══════════════════════════════════════════════
+       SECTION 4 — Mixed page
+  ════════════════════════════════════════════════ -->
+  <div class="dom-section" id="mixed">
+    <div class="dom-section-header">
+      <span class="badge badge-regular" style="background:#EDE9FE;color:#4C1D95;">Mixed</span>
+      <div>
+        <div class="dom-section-title">Realistic dashboard — all three types on one page</div>
+        <div class="dom-section-desc">What a real app looks like: regular DOM chrome, open shadow components, and a closed shadow widget.</div>
+      </div>
+    </div>
+    <div class="dom-section-body">
+
+      <!-- Stat cards (regular DOM) -->
+      <p style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;">Key metrics <span class="badge badge-regular" style="vertical-align:middle;">Regular DOM</span></p>
+      <div class="card-grid" data-pendo-id="metrics-grid">
+        <div class="card" data-pendo-id="metric-mau"><div class="card-label">Monthly active users</div><div class="card-value">14,280</div></div>
+        <div class="card" data-pendo-id="metric-nps"><div class="card-label">NPS score</div><div class="card-value">62</div></div>
+        <div class="card" data-pendo-id="metric-retention"><div class="card-label">30-day retention</div><div class="card-value">78%</div></div>
+      </div>
+
+      <hr class="section-hr">
+
+      <!-- Open shadow filter bar -->
+      <p style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;">Filter bar <span class="badge badge-open" style="vertical-align:middle;">Open shadow</span></p>
+      <div id="mixed-filter-host" data-pendo-id="mixed-filter-host"></div>
+
+      <hr class="section-hr">
+
+      <!-- Regular DOM data table -->
+      <p style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;">Recent activity <span class="badge badge-regular" style="vertical-align:middle;">Regular DOM</span></p>
+      <table style="width:100%;border-collapse:collapse;font-size:14px;" data-pendo-id="activity-table">
+        <thead>
+          <tr style="border-bottom:1px solid var(--border);">
+            <th style="text-align:left;padding:8px 12px;font-size:12px;color:var(--muted);font-weight:500;">User</th>
+            <th style="text-align:left;padding:8px 12px;font-size:12px;color:var(--muted);font-weight:500;">Event</th>
+            <th style="text-align:left;padding:8px 12px;font-size:12px;color:var(--muted);font-weight:500;">Time</th>
+            <th style="text-align:left;padding:8px 12px;font-size:12px;color:var(--muted);font-weight:500;"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:10px 12px;">Alice M.</td>
+            <td style="padding:10px 12px;">Exported report</td>
+            <td style="padding:10px 12px;color:var(--muted);">2 min ago</td>
+            <td style="padding:10px 12px;"><button class="btn btn-secondary" style="padding:4px 10px;font-size:12px;" data-pendo-id="table-row-action-1" onclick="toast('Row action clicked')">View</button></td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:10px 12px;">Ben K.</td>
+            <td style="padding:10px 12px;">Updated settings</td>
+            <td style="padding:10px 12px;color:var(--muted);">14 min ago</td>
+            <td style="padding:10px 12px;"><button class="btn btn-secondary" style="padding:4px 10px;font-size:12px;" data-pendo-id="table-row-action-2" onclick="toast('Row action clicked')">View</button></td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px;">Clara T.</td>
+            <td style="padding:10px 12px;">Invited 3 teammates</td>
+            <td style="padding:10px 12px;color:var(--muted);">1 hr ago</td>
+            <td style="padding:10px 12px;"><button class="btn btn-secondary" style="padding:4px 10px;font-size:12px;" data-pendo-id="table-row-action-3" onclick="toast('Row action clicked')">View</button></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <hr class="section-hr">
+
+      <!-- Closed shadow embedded chat widget -->
+      <p style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;">Support chat widget <span class="badge badge-closed" style="vertical-align:middle;">Closed shadow</span></p>
+      <div id="mixed-chat-host" data-pendo-id="mixed-chat-host"></div>
+
+    </div>
+  </div><!-- /mixed -->
+
+</main><!-- /main -->
+
+
+<!-- ── Modal (regular DOM) ── -->
+<div class="modal-overlay" id="modal" data-pendo-id="delete-account-modal">
+  <div class="modal">
+    <div class="modal-title">Delete account?</div>
+    <div class="modal-body">This action cannot be undone. All your data will be permanently removed. This is a regular DOM modal — Pendo can tag the buttons below normally.</div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-pendo-id="modal-cancel" onclick="document.getElementById('modal').classList.remove('open')">Cancel</button>
+      <button class="btn btn-danger"    data-pendo-id="modal-confirm-delete" onclick="toast('Delete confirmed');document.getElementById('modal').classList.remove('open')">Yes, delete</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+
+<script>
+  /* ── Utilities ── */
+  function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
+  function switchTab(btn, panelId) {
+    btn.closest('.dom-section-body, .tab-panel, main').querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    btn.closest('.dom-section-body, main').querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(panelId).classList.add('active');
+  }
+
+  /* ── Open Shadow DOM: Date picker ── */
+  (function buildDatePicker() {
+    const host = document.getElementById('open-datepicker-host');
+    const root = host.attachShadow({ mode: 'open' });
+    root.innerHTML = `
+      <style>
+        :host { display: block; }
+        .dp { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        input, select, button {
+          padding: 8px 12px; border: 1px solid #E2E0DA;
+          border-radius: 8px; font-size: 14px; font-family: inherit;
+          background: #F7F6F3; color: #1A1917; outline: none;
+        }
+        input:focus, select:focus { border-color: #185FA5; box-shadow: 0 0 0 3px rgba(24,95,165,0.12); }
+        button {
+          background: #185FA5; color: #fff; border-color: #185FA5;
+          cursor: pointer; font-weight: 500;
+        }
+        button:hover { background: #0F4A85; }
+        button.secondary {
+          background: #fff; color: #1A1917; border-color: #E2E0DA;
+        }
+        button.secondary:hover { background: #F7F6F3; }
+        .label { font-size: 13px; color: #6B6860; font-family: inherit; }
+      </style>
+      <div class="dp">
+        <span class="label">From</span>
+        <input type="date" id="dp-from" data-pendo-id="open-dp-from">
+        <span class="label">To</span>
+        <input type="date" id="dp-to" data-pendo-id="open-dp-to">
+        <button id="dp-apply" data-pendo-id="open-dp-apply">Apply range</button>
+        <button class="secondary" id="dp-clear" data-pendo-id="open-dp-clear">Clear</button>
+      </div>`;
+    root.getElementById('dp-apply').addEventListener('click', () => toast('Date range applied (open shadow DOM)'));
+    root.getElementById('dp-clear').addEventListener('click', () => {
+      root.getElementById('dp-from').value = '';
+      root.getElementById('dp-to').value = '';
+      toast('Date range cleared (open shadow DOM)');
+    });
+  })();
+
+  /* ── Open Shadow DOM: Star rating ── */
+  (function buildRating() {
+    const host = document.getElementById('open-rating-host');
+    const root = host.attachShadow({ mode: 'open' });
+    root.innerHTML = `
+      <style>
+        :host { display: block; }
+        .stars { display: flex; gap: 6px; align-items: center; }
+        button {
+          background: none; border: none; font-size: 24px;
+          cursor: pointer; padding: 0; line-height: 1;
+          color: #E2E0DA; transition: color 0.1s;
+        }
+        button.filled { color: #BA7517; }
+        .label { font-size: 13px; color: #6B6860; font-family: inherit; margin-left: 8px; }
+        .submit-btn {
+          margin-left: 12px; padding: 6px 14px;
+          background: #185FA5; color: #fff; border: none;
+          border-radius: 8px; font-size: 13px; cursor: pointer;
+          font-family: inherit;
+        }
+        .submit-btn:hover { background: #0F4A85; }
+      </style>
+      <div class="stars">
+        <button data-star="1" data-pendo-id="open-star-1" aria-label="1 star">★</button>
+        <button data-star="2" data-pendo-id="open-star-2" aria-label="2 stars">★</button>
+        <button data-star="3" data-pendo-id="open-star-3" aria-label="3 stars">★</button>
+        <button data-star="4" data-pendo-id="open-star-4" aria-label="4 stars">★</button>
+        <button data-star="5" data-pendo-id="open-star-5" aria-label="5 stars">★</button>
+        <span class="label" id="rating-label">Select a rating</span>
+        <button class="submit-btn" id="rating-submit" data-pendo-id="open-rating-submit">Submit</button>
+      </div>`;
+    let selected = 0;
+    const stars = root.querySelectorAll('[data-star]');
+    stars.forEach(btn => {
+      btn.addEventListener('click', () => {
+        selected = +btn.dataset.star;
+        stars.forEach(s => s.classList.toggle('filled', +s.dataset.star <= selected));
+        root.getElementById('rating-label').textContent = `${selected} star${selected > 1 ? 's' : ''}`;
+      });
+    });
+    root.getElementById('rating-submit').addEventListener('click', () => {
+      toast(selected ? `Rating ${selected}/5 submitted (open shadow DOM)` : 'Pick a star first');
+    });
+  })();
+
+  /* ── Open Shadow DOM: Profile card ── */
+  (function buildProfile() {
+    const host = document.getElementById('open-profile-host');
+    const root = host.attachShadow({ mode: 'open' });
+    root.innerHTML = `
+      <style>
+        :host { display: block; }
+        .card {
+          display: flex; align-items: center; gap: 16px;
+          background: #fff; border: 1px solid #E2E0DA;
+          border-radius: 10px; padding: 16px 20px; max-width: 400px;
+        }
+        .avatar {
+          width: 48px; height: 48px; border-radius: 50%;
+          background: #E6F1FB; color: #185FA5;
+          display: flex; align-items: center; justify-content: center;
+          font-weight: 600; font-size: 16px; flex-shrink: 0; font-family: inherit;
+        }
+        .info { flex: 1; }
+        .name { font-weight: 600; font-size: 15px; font-family: inherit; color: #1A1917; }
+        .role { font-size: 13px; color: #6B6860; font-family: inherit; }
+        .actions { display: flex; gap: 6px; }
+        button {
+          padding: 6px 12px; border-radius: 6px; font-size: 13px;
+          cursor: pointer; border: 1px solid #E2E0DA;
+          background: #fff; font-family: inherit; color: #1A1917;
+        }
+        button.primary { background: #185FA5; color: #fff; border-color: #185FA5; }
+        button:hover { opacity: 0.85; }
+      </style>
+      <div class="card">
+        <div class="avatar">SR</div>
+        <div class="info">
+          <div class="name">Sam Rivera</div>
+          <div class="role">Product Manager · Acme Corp</div>
+        </div>
+        <div class="actions">
+          <button class="primary" data-pendo-id="open-profile-message" id="msg-btn">Message</button>
+          <button data-pendo-id="open-profile-follow" id="follow-btn">Follow</button>
+        </div>
+      </div>`;
+    root.getElementById('msg-btn').addEventListener('click', () => toast('Message clicked (open shadow DOM)'));
+    root.getElementById('follow-btn').addEventListener('click', () => toast('Follow clicked (open shadow DOM)'));
+  })();
+
+  /* ── Closed Shadow DOM: Video player ── */
+  (function buildVideoPlayer() {
+    const host = document.getElementById('closed-player-host');
+    // Pendo intercepts this if loaded early enough
+    const root = host.attachShadow({ mode: 'closed' });
+    root.innerHTML = `
+      <style>
+        :host { display: block; }
+        .player {
+          background: #1A1917; border-radius: 10px; padding: 20px;
+          display: flex; flex-direction: column; gap: 12px; max-width: 480px;
+        }
+        .screen {
+          background: #2C2C2A; border-radius: 6px; height: 120px;
+          display: flex; align-items: center; justify-content: center;
+          color: #7A7060; font-family: inherit; font-size: 14px;
+        }
+        .controls { display: flex; align-items: center; gap: 10px; }
+        button {
+          background: none; border: none; color: #E8E5DF; cursor: pointer;
+          font-size: 20px; padding: 4px 8px; border-radius: 4px; line-height: 1;
+        }
+        button:hover { background: rgba(255,255,255,0.1); }
+        input[type=range] {
+          flex: 1; accent-color: #85B7EB; cursor: pointer;
+        }
+        .time { font-size: 12px; color: #7A7060; font-family: monospace; }
+      </style>
+      <div class="player">
+        <div class="screen">▶ Video content</div>
+        <div class="controls">
+          <button id="play-btn" title="Play/Pause">▶</button>
+          <button id="prev-btn" title="Rewind">⏮</button>
+          <input type="range" id="progress" value="30" min="0" max="100">
+          <span class="time">1:23 / 4:12</span>
+          <button id="vol-btn" title="Mute">🔊</button>
+          <input type="range" id="volume" value="80" min="0" max="100" style="width:70px;">
+        </div>
+      </div>`;
+    root.getElementById('play-btn').addEventListener('click', () => {
+      toast('Play clicked (closed shadow DOM — tracked via pendo.track())');
+      if (typeof pendo !== 'undefined') pendo.track('Video Played', { component: 'closed-player' });
+    });
+    root.getElementById('vol-btn').addEventListener('click', () => {
+      toast('Mute toggled (closed shadow DOM)');
+      if (typeof pendo !== 'undefined') pendo.track('Video Muted', { component: 'closed-player' });
+    });
+  })();
+
+  /* ── Closed Shadow DOM: Payment widget ── */
+  (function buildPayment() {
+    const host = document.getElementById('closed-payment-host');
+    const root = host.attachShadow({ mode: 'closed' });
+    root.innerHTML = `
+      <style>
+        :host { display: block; }
+        .widget {
+          border: 1px solid #E2E0DA; border-radius: 10px;
+          padding: 20px; max-width: 400px; font-family: inherit;
+        }
+        .title { font-weight: 600; font-size: 15px; margin-bottom: 14px; color: #1A1917; }
+        .field { margin-bottom: 12px; }
+        label { font-size: 12px; color: #6B6860; display: block; margin-bottom: 4px; }
+        input {
+          width: 100%; padding: 9px 12px; border: 1px solid #E2E0DA;
+          border-radius: 8px; font-size: 14px; font-family: inherit;
+          background: #F7F6F3; outline: none;
+        }
+        input:focus { border-color: #185FA5; box-shadow: 0 0 0 3px rgba(24,95,165,0.12); }
+        .row { display: flex; gap: 10px; }
+        .row .field { flex: 1; }
+        button {
+          width: 100%; padding: 10px; background: #185FA5; color: #fff;
+          border: none; border-radius: 8px; font-size: 14px; font-weight: 500;
+          cursor: pointer; font-family: inherit; margin-top: 4px;
+        }
+        button:hover { background: #0F4A85; }
+      </style>
+      <div class="widget">
+        <div class="title">💳 Payment details</div>
+        <div class="field">
+          <label>Card number</label>
+          <input type="text" placeholder="4242 4242 4242 4242" maxlength="19">
+        </div>
+        <div class="row">
+          <div class="field"><label>Expiry</label><input type="text" placeholder="MM / YY" maxlength="7"></div>
+          <div class="field"><label>CVC</label><input type="text" placeholder="123" maxlength="4"></div>
+        </div>
+        <button id="pay-btn">Pay $49.00</button>
+      </div>`;
+    root.getElementById('pay-btn').addEventListener('click', () => {
+      toast('Payment initiated (closed shadow DOM — pendo.track())');
+      if (typeof pendo !== 'undefined') pendo.track('Payment Initiated', { component: 'closed-payment', amount: 49 });
+    });
+  })();
+
+  /* ── Open Shadow DOM: Filter bar (mixed section) ── */
+  (function buildFilterBar() {
+    const host = document.getElementById('mixed-filter-host');
+    const root = host.attachShadow({ mode: 'open' });
+    root.innerHTML = `
+      <style>
+        :host { display: block; }
+        .bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+        select, input {
+          padding: 7px 10px; border: 1px solid #E2E0DA; border-radius: 8px;
+          font-size: 13px; font-family: inherit; background: #F7F6F3; outline: none;
+        }
+        select:focus, input:focus { border-color: #185FA5; }
+        button {
+          padding: 7px 14px; background: #185FA5; color: #fff; border: none;
+          border-radius: 8px; font-size: 13px; cursor: pointer; font-family: inherit;
+        }
+        button.reset { background: #fff; color: #1A1917; border: 1px solid #E2E0DA; }
+        button:hover { opacity: 0.85; }
+      </style>
+      <div class="bar">
+        <select data-pendo-id="filter-timeframe">
+          <option>Last 7 days</option>
+          <option>Last 30 days</option>
+          <option>Last 90 days</option>
+          <option>Custom range</option>
+        </select>
+        <select data-pendo-id="filter-segment">
+          <option>All users</option>
+          <option>Free plan</option>
+          <option>Pro plan</option>
+          <option>Enterprise</option>
+        </select>
+        <input type="text" placeholder="Search user..." data-pendo-id="filter-search">
+        <button id="apply-filter" data-pendo-id="filter-apply">Apply filters</button>
+        <button class="reset" id="reset-filter" data-pendo-id="filter-reset">Reset</button>
+      </div>`;
+    root.getElementById('apply-filter').addEventListener('click', () => toast('Filters applied (open shadow DOM)'));
+    root.getElementById('reset-filter').addEventListener('click', () => toast('Filters reset (open shadow DOM)'));
+  })();
+
+  /* ── Closed Shadow DOM: Chat widget (mixed section) ── */
+  (function buildChat() {
+    const host = document.getElementById('mixed-chat-host');
+    const root = host.attachShadow({ mode: 'closed' });
+    root.innerHTML = `
+      <style>
+        :host { display: block; }
+        .chat {
+          border: 1px solid #E2E0DA; border-radius: 10px;
+          max-width: 420px; font-family: inherit; overflow: hidden;
+        }
+        .chat-header {
+          background: #185FA5; color: #fff; padding: 12px 16px;
+          display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 500;
+        }
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: #9FE1CB; }
+        .messages { padding: 14px; min-height: 100px; background: #F7F6F3; display: flex; flex-direction: column; gap: 8px; }
+        .msg { font-size: 13px; padding: 8px 12px; border-radius: 8px; max-width: 80%; line-height: 1.5; }
+        .msg.agent { background: #fff; border: 1px solid #E2E0DA; align-self: flex-start; }
+        .msg.user  { background: #185FA5; color: #fff; align-self: flex-end; }
+        .input-row {
+          display: flex; border-top: 1px solid #E2E0DA; background: #fff;
+        }
+        input {
+          flex: 1; padding: 10px 14px; border: none; outline: none;
+          font-size: 13px; font-family: inherit; background: transparent;
+        }
+        button {
+          padding: 10px 16px; background: #185FA5; color: #fff; border: none;
+          font-size: 13px; cursor: pointer; font-family: inherit;
+        }
+        button:hover { background: #0F4A85; }
+      </style>
+      <div class="chat">
+        <div class="chat-header">
+          <div class="dot"></div>
+          Support chat
+        </div>
+        <div class="messages" id="msgs">
+          <div class="msg agent">Hi! How can I help you today?</div>
+        </div>
+        <div class="input-row">
+          <input type="text" id="chat-input" placeholder="Type a message...">
+          <button id="send-btn">Send</button>
+        </div>
+      </div>`;
+    root.getElementById('send-btn').addEventListener('click', () => {
+      const input = root.getElementById('chat-input');
+      const text = input.value.trim();
+      if (!text) return;
+      const msgs = root.getElementById('msgs');
+      const userMsg = document.createElement('div');
+      userMsg.className = 'msg user';
+      userMsg.textContent = text;
+      msgs.appendChild(userMsg);
+      input.value = '';
+      if (typeof pendo !== 'undefined') pendo.track('Chat Message Sent', { component: 'closed-chat', length: text.length });
+      toast('Message sent — tracked via pendo.track() (closed shadow DOM)');
+      setTimeout(() => {
+        const r = document.createElement('div');
+        r.className = 'msg agent';
+        r.textContent = 'Thanks! A team member will reply shortly.';
+        msgs.appendChild(r);
+        msgs.scrollTop = msgs.scrollHeight;
+      }, 800);
+    });
+  })();
+</script>
+</body>
+</html>
