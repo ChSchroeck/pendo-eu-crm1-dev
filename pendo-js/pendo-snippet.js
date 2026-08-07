@@ -13,6 +13,7 @@
             // You will need to replace <visitor-id-goes-here> and <account-id-goes-here> with values you use in your app
             // Please use Strings, Numbers, or Bools for value types.
 // Visitor 1 / Account 1
+/*
             pendo.initialize({
                 visitor: {
                     id: "user_005", // Required if user is logged in
@@ -40,11 +41,11 @@
                     // as long as it's not one of the above reserved names.
                 }
             }); 
- 
-            /* pendo.initialize({
+ */
+            pendo.initialize({
                 visitor: {
                     id: "user_003", // Required if user is logged in
-                    email: "paul_pendo@schroeck-online.de", // Recommended if using Pendo Feedback, or NPS Email
+                    email: "paul.pendo@cs-self.de", // Recommended if using Pendo Feedback, or NPS Email
                     full_name: "Paul Pendo", // Recommended if using Pendo Feedback
                     role: "User",// Optional
                     location: "UK" //Metadata 1
@@ -66,5 +67,5 @@
                     // You can add any additional account level key-values here,
                     // as long as it's not one of the above reserved names.
                 }
-            }); */
+            }); 
         })('7d66e821-ff08-4795-a340-1a3ebbd3df49');
