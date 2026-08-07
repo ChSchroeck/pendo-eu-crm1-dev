@@ -67,13 +67,8 @@
                     // You can add any additional account level key-values here,
                     // as long as it's not one of the above reserved names.
                 }
-<<<<<<< HEAD
             }); 
         })('7d66e821-ff08-4795-a340-1a3ebbd3df49');
-=======
-            }); */
-        })('7d66e821-ff08-4795-a340-1a3ebbd3df49');
-
 
 
 
@@ -88,4 +83,3 @@
     var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
     g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
   })();
->>>>>>> 1f049214625216ad7af6115e6cf1edb1a5c78942
