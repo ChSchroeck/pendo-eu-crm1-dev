@@ -73,56 +73,47 @@
 
 <script>
   // ─── Configuration ───────────────────────────────────────────────────────────
-  const PENDO_INTEGRATION_KEY = 'ac11fd83-d2b4-4934-b3f2-f8317a50295d'; // ← replace
-  const VISITOR_ID = 'user_001'; // ← replace with real visitor ID if needed
-  const ACCOUNT_ID = 'account_001'; // ← replace with real account ID if needed
-  const PENDO_TRACK_URL = 'https://app.eu.pendo.io/data/track';
+  const PENDO_API_KEY  = '7d66e821-ff08-4795-a340-1a3ebbd3df49';
+  const VISITOR_ID     = 'user_001';    // ← replace with real visitor ID
+  const ACCOUNT_ID     = 'account_001'; // ← replace with real account ID
   // ─────────────────────────────────────────────────────────────────────────────
 
+  // Pendo snippet (EU CDN)
+  (function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){
+    o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+    y=e.createElement(n);y.async=!0;y.src='https://cdn.eu.pendo.io/agent/static/'+apiKey+'/pendo.js';
+    z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+
+    pendo.initialize({
+      visitor: { id: VISITOR_ID },
+      account: { id: ACCOUNT_ID }
+    });
+  })(PENDO_API_KEY);
+
+  // ─── Logging helper ──────────────────────────────────────────────────────────
   function log(msg, isError) {
     const div = document.getElementById('log');
-    const p = document.createElement('p');
-    p.className = isError ? 'err' : 'ok';
+    const p   = document.createElement('p');
+    p.className  = isError ? 'err' : 'ok';
     p.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
     div.prepend(p);
   }
 
-  async function send(eventName) {
+  // ─── Send track event via Pendo JS SDK ───────────────────────────────────────
+  function send(eventName) {
     const ticketId = document.getElementById('ticketInput').value.trim();
     if (!ticketId) {
       log('Enter a ticket number first.', true);
       return;
     }
 
-    const payload = {
-      type: 'track',
-      event: eventName,
-      visitorId: VISITOR_ID,
-      accountId: ACCOUNT_ID,
-      timestamp: Date.now(),
-      properties: {
-        ticketId: ticketId
-      }
-    };
-
     try {
-      const res = await fetch(PENDO_TRACK_URL, {
-        method: 'POST',
-        headers: {
-          'x-pendo-integration-key': PENDO_INTEGRATION_KEY,
-          'content-type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-      });
-
-      if (res.ok) {
-        log(`✓ "${eventName}" sent for ticket ${ticketId}`);
-      } else {
-        const text = await res.text();
-        log(`✗ ${res.status} ${res.statusText} — ${text}`, true);
-      }
+      pendo.track(eventName, { ticketId: ticketId });
+      log(`✓ "${eventName}" sent for ticket ${ticketId}`);
     } catch (err) {
-      log(`✗ Network error: ${err.message}`, true);
+      log(`✗ ${err.message}`, true);
     }
   }
 </script>
