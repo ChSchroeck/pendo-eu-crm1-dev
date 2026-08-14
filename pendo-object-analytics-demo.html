@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pendo Object Analytics — Ticket Demo</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 520px;
+      margin: 60px auto;
+      padding: 0 20px;
+      color: #222;
+    }
+    h1 { font-size: 1.4rem; margin-bottom: 4px; }
+    p.subtitle { color: #666; font-size: 0.9rem; margin-top: 0; }
+
+    label { display: block; font-weight: bold; margin-bottom: 4px; }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px 10px;
+      font-size: 1rem;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    button {
+      padding: 9px 16px;
+      font-size: 0.95rem;
+      border: 1px solid #999;
+      border-radius: 4px;
+      background: #f5f5f5;
+      cursor: pointer;
+    }
+    button:hover { background: #e8e8e8; }
+
+    #log {
+      margin-top: 24px;
+      border-top: 1px solid #ddd;
+      padding-top: 12px;
+      font-size: 0.85rem;
+      color: #444;
+    }
+    #log p { margin: 4px 0; }
+    .ok  { color: #1a7a1a; }
+    .err { color: #b00; }
+  </style>
+</head>
+<body>
+
+<h1>Pendo Object Analytics — Ticket Demo</h1>
+<p class="subtitle">Sends Track Events with a <code>ticketId</code> property for object tracking.</p>
+
+<label for="ticketInput">Ticket Number</label>
+<input id="ticketInput" type="text" placeholder="e.g. TICKET-1234">
+
+<div class="buttons">
+  <button onclick="send('Ticket Created')">Create Ticket</button>
+  <button onclick="send('Ticket Assigned')">Assign Ticket</button>
+  <button onclick="send('Ticket Paused')">Pause Ticket</button>
+  <button onclick="send('Ticket Resolved')">Resolve Ticket</button>
+  <button onclick="send('Ticket Closed')">Close Ticket</button>
+</div>
+
+<div id="log"></div>
+
+<script>
+  // ─── Configuration ───────────────────────────────────────────────────────────
+  const PENDO_INTEGRATION_KEY = 'ac11fd83-d2b4-4934-b3f2-f8317a50295d'; // ← replace
+  const VISITOR_ID = 'user_001'; // ← replace with real visitor ID if needed
+  const ACCOUNT_ID = 'account_001'; // ← replace with real account ID if needed
+  const PENDO_TRACK_URL = 'https://app.pendo.io/data/track';
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  function log(msg, isError) {
+    const div = document.getElementById('log');
+    const p = document.createElement('p');
+    p.className = isError ? 'err' : 'ok';
+    p.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+    div.prepend(p);
+  }
+
+  async function send(eventName) {
+    const ticketId = document.getElementById('ticketInput').value.trim();
+    if (!ticketId) {
+      log('Enter a ticket number first.', true);
+      return;
+    }
+
+    const payload = {
+      type: 'track',
+      event: eventName,
+      visitorId: VISITOR_ID,
+      accountId: ACCOUNT_ID,
+      timestamp: Date.now(),
+      properties: {
+        ticketId: ticketId
+      }
+    };
+
+    try {
+      const res = await fetch(PENDO_TRACK_URL, {
+        method: 'POST',
+        headers: {
+          'x-pendo-integration-key': PENDO_INTEGRATION_KEY,
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        log(`✓ "${eventName}" sent for ticket ${ticketId}`);
+      } else {
+        const text = await res.text();
+        log(`✗ ${res.status} ${res.statusText} — ${text}`, true);
+      }
+    } catch (err) {
+      log(`✗ Network error: ${err.message}`, true);
+    }
+  }
+</script>
+
+</body>
+</html>
