@@ -51,6 +51,18 @@
     #log p { margin: 4px 0; }
     .ok  { color: #1a7a1a; }
     .err { color: #b00; }
+
+    #url-indicator {
+      margin-top: 20px;
+      padding: 8px 12px;
+      background: #f0f4ff;
+      border: 1px solid #c0ccee;
+      border-radius: 4px;
+      font-size: 0.82rem;
+      color: #333;
+      word-break: break-all;
+    }
+    #url-indicator strong { color: #555; }
   </style>
 </head>
 <body>
@@ -68,6 +80,8 @@
   <button onclick="send('Ticket Resolved')">Resolve Ticket</button>
   <button onclick="send('Ticket Closed')">Close Ticket</button>
 </div>
+
+<div id="url-indicator"><strong>Pendo URL:</strong> <span id="pendo-url">—</span></div>
 
 <div id="log"></div>
 
@@ -88,9 +102,38 @@
 
     pendo.initialize({
       visitor: { id: VISITOR_ID },
-      account: { id: ACCOUNT_ID }
+      account: { id: ACCOUNT_ID },
+
+      // Location API: dynamically report a /tickets/{ticketId} URL to Pendo
+      // so the ticket ID is captured on page events without needing it in the
+      // real browser URL. In the Object Analytics setup, use the URL rule:
+      //   //*/tickets/*value*
+      location: {
+        setUrl: function () {
+          const ticketId = document.getElementById('ticketInput')?.value.trim();
+          if (ticketId) {
+            return window.location.origin + '/tickets/' + encodeURIComponent(ticketId);
+          }
+          return window.location.href; // fall back to real URL when no ticket
+        }
+      }
     });
   })(PENDO_API_KEY);
+
+  // ─── Keep the URL indicator in sync ──────────────────────────────────────────
+  function refreshUrlIndicator() {
+    const el = document.getElementById('pendo-url');
+    if (el && window.pendo && pendo.location) {
+      el.textContent = pendo.location.getHref() || '—';
+    }
+  }
+
+  // Poll every 600 ms — matches Pendo's own setUrl polling interval
+  setInterval(refreshUrlIndicator, 600);
+  // Also refresh immediately when the ticket field changes
+  document.getElementById('ticketInput').addEventListener('input', () => {
+    setTimeout(refreshUrlIndicator, 50); // slight delay so Pendo picks up the change first
+  });
 
   // ─── Logging helper ──────────────────────────────────────────────────────────
   function log(msg, isError) {
