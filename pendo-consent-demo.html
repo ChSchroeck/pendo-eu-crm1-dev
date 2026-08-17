@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pendo Conditional Initialization Demo</title>
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f4f5f7;
+      color: #1a1a2e;
+      min-height: 100vh;
+    }
+
+    /* ── Consent Modal Overlay ── */
+    #consent-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 15, 30, 0.65);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    #consent-overlay.hidden { display: none; }
+
+    .consent-modal {
+      background: #fff;
+      border-radius: 16px;
+      padding: 40px 36px 32px;
+      width: min(520px, 92vw);
+      box-shadow: 0 24px 64px rgba(0,0,0,0.2);
+    }
+
+    .consent-modal .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    .consent-modal .logo svg { width: 32px; height: 32px; }
+    .consent-modal .logo span { font-size: 1.25rem; font-weight: 700; color: #FF4876; }
+
+    .consent-modal h2 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #1a1a2e;
+    }
+    .consent-modal p {
+      font-size: 0.9rem;
+      color: #666;
+      line-height: 1.55;
+      margin-bottom: 28px;
+    }
+
+    .consent-options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .consent-option {
+      border: 2px solid #e8e8f0;
+      border-radius: 12px;
+      padding: 16px 18px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+    .consent-option:hover { border-color: #FF4876; background: #fff8f9; }
+    .consent-option.selected { border-color: #FF4876; background: #fff0f3; }
+
+    .consent-option input[type="radio"] {
+      margin-top: 3px;
+      accent-color: #FF4876;
+      width: 17px;
+      height: 17px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+
+    .option-text { display: flex; flex-direction: column; gap: 3px; }
+    .option-title { font-weight: 600; font-size: 0.95rem; color: #1a1a2e; }
+    .option-desc { font-size: 0.82rem; color: #888; line-height: 1.45; }
+
+    .option-badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 20px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+    .badge-full { background: #e6f4ea; color: #2d7a3a; }
+    .badge-req  { background: #fff3e0; color: #b35c00; }
+    .badge-none { background: #fce4ec; color: #c62828; }
+
+    .consent-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 10px 24px;
+      border-radius: 8px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: #FF4876; color: #fff; }
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-ghost { background: transparent; color: #666; border: 2px solid #e0e0e0; }
+    .btn-ghost:hover { background: #f5f5f5; }
+
+    /* ── App Shell ── */
+    header {
+      background: #fff;
+      border-bottom: 1px solid #e8e8f0;
+      padding: 0 32px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header-logo { display: flex; align-items: center; gap: 10px; }
+    .header-logo svg { width: 26px; height: 26px; }
+    .header-logo span { font-size: 1.05rem; font-weight: 700; color: #FF4876; }
+
+    #privacy-btn {
+      font-size: 0.82rem;
+      color: #888;
+      cursor: pointer;
+      background: none;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      padding: 5px 12px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    #privacy-btn:hover { color: #FF4876; border-color: #FF4876; }
+
+    main { max-width: 860px; margin: 0 auto; padding: 48px 24px; }
+
+    .status-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 28px 32px;
+      margin-bottom: 32px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .status-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+    .status-icon.all  { background: #e6f4ea; }
+    .status-icon.req  { background: #fff3e0; }
+    .status-icon.none { background: #fce4ec; }
+
+    .status-text h3 { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+    .status-text p  { font-size: 0.85rem; color: #777; line-height: 1.5; }
+
+    .code-section h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: #1a1a2e;
+    }
+
+    .code-block {
+      background: #1a1a2e;
+      color: #e8e8f0;
+      border-radius: 10px;
+      padding: 24px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 0.82rem;
+      line-height: 1.7;
+      overflow-x: auto;
+      white-space: pre;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+    }
+    .code-block .c-comment { color: #6a8a6a; }
+    .code-block .c-key     { color: #79b8ff; }
+    .code-block .c-str     { color: #f0a46a; }
+    .code-block .c-bool    { color: #ff79c6; }
+    .code-block .c-fn      { color: #c5a5e8; }
+
+    .tab-bar {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 0;
+      background: #1a1a2e;
+      padding: 12px 24px 0;
+      border-radius: 10px 10px 0 0;
+    }
+    .tab-bar + .code-block { border-radius: 0 0 10px 10px; }
+
+    .tab {
+      padding: 6px 16px;
+      border-radius: 6px 6px 0 0;
+      font-size: 0.78rem;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      color: #888;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      transition: background 0.15s, color 0.15s;
+    }
+    .tab.active { background: #0d1117; color: #e8e8f0; }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-top: 32px;
+    }
+
+    .info-card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      border-left: 4px solid transparent;
+    }
+    .info-card.all  { border-left-color: #4caf50; }
+    .info-card.req  { border-left-color: #ff9800; }
+    .info-card.none { border-left-color: #f44336; }
+
+    .info-card h4 { font-size: 0.88rem; font-weight: 700; margin-bottom: 8px; }
+    .info-card ul { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+    .info-card ul li { font-size: 0.8rem; color: #666; display: flex; align-items: center; gap: 6px; }
+    .info-card ul li::before { content: "✓"; color: #4caf50; font-weight: 700; flex-shrink: 0; }
+    .info-card ul li.no::before { content: "✕"; color: #f44336; }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     CONSENT MODAL
+════════════════════════════════════════════ -->
+<div id="consent-overlay">
+  <div class="consent-modal">
+    <div class="logo">
+      <!-- Pendo "P" logo mark (simplified SVG) -->
+      <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="32" height="32" rx="8" fill="#FF4876"/>
+        <path d="M9 8h8a7 7 0 010 14H13v6H9V8zm4 3v8h4a4 4 0 000-8h-4z" fill="#fff"/>
+      </svg>
+      <span>MyApp</span>
+    </div>
+
+    <h2>Your privacy, your choice</h2>
+    <p>We use Pendo to understand how you use our app and to deliver helpful in-app guides. Choose the level of data collection you're comfortable with.</p>
+
+    <div class="consent-options">
+
+      <label class="consent-option" id="opt-all">
+        <input type="radio" name="consent" value="all" />
+        <div class="option-text">
+          <span class="option-title">
+            All <span class="option-badge badge-full">Full</span>
+          </span>
+          <span class="option-desc">
+            Full Pendo initialization — visitor & account metadata, page views, clicks, feature analytics, and in-app guides.
+          </span>
+        </div>
+      </label>
+
+      <label class="consent-option" id="opt-required">
+        <input type="radio" name="consent" value="required" />
+        <div class="option-text">
+          <span class="option-title">
+            Required <span class="option-badge badge-req">Guides only</span>
+          </span>
+          <span class="option-desc">
+            In-app guides and polls only. No browser events, click tracking, or product analytics are collected.
+          </span>
+        </div>
+      </label>
+
+      <label class="consent-option" id="opt-none">
+        <input type="radio" name="consent" value="none" />
+        <div class="option-text">
+          <span class="option-title">
+            None <span class="option-badge badge-none">Opted out</span>
+          </span>
+          <span class="option-desc">
+            No tracking whatsoever. You'll still receive critical in-app guides flagged for opted-out visitors — nothing else is collected.
+          </span>
+        </div>
+      </label>
+
+    </div>
+
+    <div class="consent-actions">
+      <button class="btn btn-ghost" id="cancel-btn">Decide later</button>
+      <button class="btn btn-primary" id="confirm-btn">Confirm &amp; Continue</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     APP SHELL
+════════════════════════════════════════════ -->
+<header>
+  <div class="header-logo">
+    <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="32" height="32" rx="8" fill="#FF4876"/>
+      <path d="M9 8h8a7 7 0 010 14H13v6H9V8zm4 3v8h4a4 4 0 000-8h-4z" fill="#fff"/>
+    </svg>
+    <span>MyApp</span>
+  </div>
+  <button id="privacy-btn">⚙ Privacy settings</button>
+</header>
+
+<main>
+
+  <!-- Active status banner -->
+  <div class="status-card" id="status-card">
+    <div class="status-icon" id="status-icon">🔵</div>
+    <div class="status-text">
+      <h3 id="status-title">No preference set</h3>
+      <p id="status-desc">Open the privacy settings to choose a tracking level.</p>
+    </div>
+  </div>
+
+  <!-- Code block -->
+  <div class="code-section">
+    <h2>Active Pendo initialization snippet</h2>
+
+    <div class="tab-bar">
+      <button class="tab active" id="tab-js">pendo-init.js</button>
+    </div>
+    <div class="code-block" id="code-display">
+      <span class="c-comment">// No consent level set — Pendo has not been initialized.</span>
+    </div>
+  </div>
+
+  <!-- Summary cards -->
+  <div class="info-grid">
+    <div class="info-card all">
+      <h4>All — Full initialization</h4>
+      <ul>
+        <li>Visitor &amp; account metadata</li>
+        <li>Page-load events</li>
+        <li>Click &amp; feature tracking</li>
+        <li>Analytics &amp; segments</li>
+        <li>In-app guides</li>
+      </ul>
+    </div>
+    <div class="info-card req">
+      <h4>Required — Guides only</h4>
+      <ul>
+        <li>Visitor &amp; account metadata</li>
+        <li class="no">Browser events excluded</li>
+        <li class="no">No click or feature tracking</li>
+        <li>Guide &amp; poll delivery</li>
+        <li>Segment-based delivery (metadata only)</li>
+      </ul>
+    </div>
+    <div class="info-card none">
+      <h4>None — Opted out</h4>
+      <ul>
+        <li class="no">No visitor tracking</li>
+        <li class="no">No analytics events</li>
+        <li class="no">No cookies or IDs stored</li>
+        <li>Critical guides (opted-out mode)</li>
+        <li>Per-session anonymous ID only</li>
+      </ul>
+    </div>
+  </div>
+
+</main>
+
+<!-- ═══════════════════════════════════════════
+     PENDO SNIPPET  (replace YOUR_API_KEY)
+════════════════════════════════════════════ -->
+<script>
+  // Pendo agent loader — swap YOUR_API_KEY for your real key
+  (function(apiKey){
+    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+    v=['initialize','identify','updateOptions','pageLoad','track'];
+    for(w=0,x=v.length;w<x;++w)(function(m){
+      o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+    y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+    z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+  })('7d66e821-ff08-4795-a340-1a3ebbd3df49');
+</script>
+
+<script>
+  // ─────────────────────────────────────────────
+  //  CONFIG
+  // ─────────────────────────────────────────────
+  const VISITOR_ID = 'user_001';
+  const ACCOUNT_ID = 'account_001';
+  const STORAGE_KEY = 'pendo_consent_level';
+
+  // ─────────────────────────────────────────────
+  //  PENDO INITIALIZATION MODES
+  // ─────────────────────────────────────────────
+
+  function initAll() {
+    /**
+     * ALL — Full Pendo initialization.
+     * Captures: visitor/account metadata, page events, clicks,
+     * feature analytics, track events, and in-app guides.
+     */
+    pendo.initialize({
+      visitor: { id: VISITOR_ID },
+      account: { id: ACCOUNT_ID }
+    });
+  }
+
+  function initRequired() {
+    /**
+     * REQUIRED — Guides and polls only; no browser or analytic events.
+     * excludeNonGuideAnalytics prevents all event collection except
+     * guide views and poll responses. Visitor metadata is still sent
+     * so segment-based guide delivery continues to work.
+     */
+    pendo.initialize({
+      visitor: { id: VISITOR_ID },
+      account: { id: ACCOUNT_ID },
+      excludeNonGuideAnalytics: true
+    });
+  }
+
+  function initNone() {
+    /**
+     * NONE — Opted-out visitor mode.
+     * doNotTrackGuides: true tells the SDK the visitor has opted out
+     * of tracking. No cookies or persistent IDs are set. A per-session
+     * anonymous ID is used so guides flagged for opted-out visitors
+     * can still be delivered. No analytics events are collected.
+     *
+     * ⚠ Also enable "Guides for untracked visitors" in:
+     *   Subscription settings › Applications › Cookies and data privacy
+     */
+    pendo.initialize({
+      doNotTrackGuides: true
+    });
+  }
+
+  // ─────────────────────────────────────────────
+  //  DISPATCHER
+  // ─────────────────────────────────────────────
+
+  function applyConsent(level) {
+    switch (level) {
+      case 'all':      initAll();      break;
+      case 'required': initRequired(); break;
+      case 'none':     initNone();     break;
+    }
+    localStorage.setItem(STORAGE_KEY, level);
+    updateUI(level);
+  }
+
+  // ─────────────────────────────────────────────
+  //  UI HELPERS
+  // ─────────────────────────────────────────────
+
+  const snippets = {
+    all: `<span class="c-comment">// ALL — Full Pendo initialization</span>
+<span class="c-fn">pendo</span>.<span class="c-fn">initialize</span>({
+  <span class="c-key">visitor</span>: { <span class="c-key">id</span>: <span class="c-str">'${VISITOR_ID}'</span> },
+  <span class="c-key">account</span>: { <span class="c-key">id</span>: <span class="c-str">'${ACCOUNT_ID}'</span> }
+});`,
+
+    required: `<span class="c-comment">// REQUIRED — In-app guides only; no browser or analytic events</span>
+<span class="c-fn">pendo</span>.<span class="c-fn">initialize</span>({
+  <span class="c-key">visitor</span>: { <span class="c-key">id</span>: <span class="c-str">'${VISITOR_ID}'</span> },
+  <span class="c-key">account</span>: { <span class="c-key">id</span>: <span class="c-str">'${ACCOUNT_ID}'</span> },
+  <span class="c-key">excludeNonGuideAnalytics</span>: <span class="c-bool">true</span>
+});`,
+
+    none: `<span class="c-comment">// NONE — Opted-out visitor mode (guides for opted-out visitors only)</span>
+<span class="c-comment">// Requires "Guides for untracked visitors" enabled in Subscription settings.</span>
+<span class="c-fn">pendo</span>.<span class="c-fn">initialize</span>({
+  <span class="c-key">doNotTrackGuides</span>: <span class="c-bool">true</span>
+});`
+  };
+
+  const statusMap = {
+    all: {
+      icon: '✅', iconClass: 'all',
+      title: 'Full tracking active',
+      desc: 'Pendo is fully initialized. Visitor metadata, analytics events, and guides are all active.'
+    },
+    required: {
+      icon: '🟡', iconClass: 'req',
+      title: 'Guides-only mode active',
+      desc: 'Pendo is initialized with excludeNonGuideAnalytics: true. In-app guides are delivered; no browser or product analytics events are collected.'
+    },
+    none: {
+      icon: '🔴', iconClass: 'none',
+      title: 'Opted-out mode active',
+      desc: 'Pendo is initialized with doNotTrackGuides: true. No tracking or cookies are set. Opted-out guides are still deliverable.'
+    }
+  };
+
+  function updateUI(level) {
+    if (!level) return;
+    const s = statusMap[level];
+    document.getElementById('status-icon').textContent = s.icon;
+    document.getElementById('status-icon').className = 'status-icon ' + s.iconClass;
+    document.getElementById('status-title').textContent = s.title;
+    document.getElementById('status-desc').textContent  = s.desc;
+    document.getElementById('code-display').innerHTML   = snippets[level];
+  }
+
+  // ─────────────────────────────────────────────
+  //  MODAL LOGIC
+  // ─────────────────────────────────────────────
+
+  const overlay     = document.getElementById('consent-overlay');
+  const confirmBtn  = document.getElementById('confirm-btn');
+  const cancelBtn   = document.getElementById('cancel-btn');
+  const privacyBtn  = document.getElementById('privacy-btn');
+  const radios      = document.querySelectorAll('input[name="consent"]');
+  const optLabels   = document.querySelectorAll('.consent-option');
+
+  // Highlight selected option card
+  radios.forEach(r => {
+    r.addEventListener('change', () => {
+      optLabels.forEach(l => l.classList.remove('selected'));
+      r.closest('.consent-option').classList.add('selected');
+    });
+  });
+
+  function openModal() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const radio = document.querySelector(`input[value="${saved}"]`);
+      if (radio) { radio.checked = true; radio.closest('.consent-option').classList.add('selected'); }
+    }
+    overlay.classList.remove('hidden');
+  }
+
+  function closeModal() {
+    overlay.classList.add('hidden');
+  }
+
+  confirmBtn.addEventListener('click', () => {
+    const selected = document.querySelector('input[name="consent"]:checked');
+    if (!selected) { alert('Please choose a tracking level to continue.'); return; }
+    applyConsent(selected.value);
+    closeModal();
+  });
+
+  cancelBtn.addEventListener('click', closeModal);
+  privacyBtn.addEventListener('click', openModal);
+
+  // Close on backdrop click
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+
+  // ─────────────────────────────────────────────
+  //  ON LOAD — restore saved preference or show modal
+  // ─────────────────────────────────────────────
+
+  window.addEventListener('DOMContentLoaded', () => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      applyConsent(saved);
+      closeModal();
+    }
+    // If nothing saved, modal remains open (default state)
+  });
+</script>
+
+</body>
+</html>
